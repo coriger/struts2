@@ -39,6 +39,8 @@ import org.apache.commons.collections.iterators.EntrySetMapIterator;
 import org.apache.commons.lang.xwork.StringUtils;
 import org.apache.struts2.StrutsException;
 import org.apache.struts2.portlet.PortletActionConstants;
+import org.apache.struts2.portlet.context.ContextUtil;
+import org.apache.struts2.portlet.context.DynamicContext;
 import org.apache.struts2.portlet.context.PortletActionContext;
 
 import com.opensymphony.xwork2.util.logging.Logger;
@@ -52,11 +54,14 @@ import com.opensymphony.xwork2.util.logging.LoggerFactory;
  * {@link javax.portlet.RenderResponse#createRenderURL()} APIs.
  *
  */
-public class PortletUrlHelper {
+public class PortletUrlHelper implements UrlHelper {
+	
+	ContextUtil context = new DynamicContext(); 
+	
     public static final String ENCODING = "UTF-8";
 
     private static final Logger LOG = LoggerFactory.getLogger(PortletUrlHelper.class);
-
+    
     /**
      * Create a portlet URL with for the specified action and namespace.
      *
@@ -69,7 +74,8 @@ public class PortletUrlHelper {
      * @param state The WindowState of the URL.
      * @return The URL String.
      */
-    public static String buildUrl(String action, String namespace, String method, Map params,
+    
+    public String buildUrl(String action, String namespace, String method, Map params,
             String type, String mode, String state) {
         return buildUrl(action, namespace, method, params, null, type, mode, state,
                 true, true);
@@ -80,7 +86,8 @@ public class PortletUrlHelper {
      *
      * @see #buildUrl(String, String, Map, String, String, String)
      */
-    public static String buildUrl(String action, String namespace, String method, Map params,
+    
+    public String buildUrl(String action, String namespace, String method, Map params,
             String scheme, String type, String portletMode, String windowState,
             boolean includeContext, boolean encodeResult) {
     	StringBuffer resultingAction = new StringBuffer();
@@ -162,7 +169,7 @@ public class PortletUrlHelper {
      *
      * @return prepended namespace.
      */
-    private static String prependNamespace(String namespace, String portletMode) {
+    private String prependNamespace(String namespace, String portletMode) {
         StringBuffer sb = new StringBuffer();
         PortletMode mode = PortletActionContext.getRenderRequest().getPortletMode();
         if(StringUtils.isNotEmpty(portletMode)) {
@@ -197,7 +204,8 @@ public class PortletUrlHelper {
      * @param value
      * @return encoded url to non Struts action resources.
      */
-    public static String buildResourceUrl(String value, Map<String, Object> params) {
+    
+    public String buildResourceUrl(String value, Map<String, Object> params) {
         StringBuffer sb = new StringBuffer();
         // Relative URLs are not allowed in a portlet
         if (!value.startsWith("/")) {
@@ -233,7 +241,8 @@ public class PortletUrlHelper {
      * @param params The parameters to the URL.
      * @return A Map with all parameters as String arrays.
      */
-    public static Map ensureParamsAreStringArrays(Map<String, Object> params) {
+    
+    public Map ensureParamsAreStringArrays(Map<String, Object> params) {
         Map<String, String[]> result = null;
         if (params != null) {
             result = new LinkedHashMap<String, String[]>(params.size());
@@ -259,7 +268,7 @@ public class PortletUrlHelper {
      * @return The WindowState that mathces the <tt>windowState</tt> String, or if
      * the Sring is blank, the current WindowState.
      */
-    private static WindowState getWindowState(RenderRequest portletReq,
+    private WindowState getWindowState(RenderRequest portletReq,
             String windowState) {
         WindowState state = portletReq.getWindowState();
         if (StringUtils.isNotEmpty(windowState)) {
@@ -286,7 +295,7 @@ public class PortletUrlHelper {
      * @return The PortletMode that mathces the <tt>portletMode</tt> String, or if
      * the Sring is blank, the current PortletMode.
      */
-    private static PortletMode getPortletMode(RenderRequest portletReq,
+    private PortletMode getPortletMode(RenderRequest portletReq,
             String portletMode) {
         PortletMode mode = portletReq.getPortletMode();
 

@@ -38,6 +38,7 @@ import org.apache.struts2.StrutsTestCase;
 import org.apache.struts2.portlet.PortletActionConstants;
 import org.apache.struts2.portlet.servlet.PortletServletRequest;
 import org.apache.struts2.portlet.util.PortletUrlHelper;
+import org.apache.struts2.portlet.util.UrlHelper;
 import org.springframework.mock.web.portlet.MockPortalContext;
 import org.springframework.mock.web.portlet.MockPortletContext;
 import org.springframework.mock.web.portlet.MockPortletURL;
@@ -79,6 +80,8 @@ public class PortletUrlTagTest extends StrutsTestCase {
 	private MockJspWriter jspWriter;
 	
 	private MockPortletContext portletContext;
+	
+	UrlHelper helper = new PortletUrlHelper();
 
 	public void setUp() throws Exception {
 		super.setUp();
@@ -137,7 +140,7 @@ public class PortletUrlTagTest extends StrutsTestCase {
 		params.put("param1", "Test1");
 		params.put("param2", new String[] { "Test2" });
 
-		Map result = PortletUrlHelper.ensureParamsAreStringArrays(params);
+		Map result = helper.ensureParamsAreStringArrays(params);
 		assertEquals(2, result.size());
 		assertTrue(result.get("param1") instanceof String[]);
 	}

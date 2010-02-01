@@ -43,7 +43,9 @@ import com.opensymphony.xwork2.ActionContext;
  * PortletActionContext. ActionContext thread local for the portlet environment.
  *
  * @version $Revision$ $Date$
+ * @deprecated Static stuff no good
  */
+@Deprecated
 public class PortletActionContext implements PortletActionConstants {
 
     /**
