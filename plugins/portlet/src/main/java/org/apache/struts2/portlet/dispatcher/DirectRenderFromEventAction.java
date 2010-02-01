@@ -67,7 +67,7 @@ public class DirectRenderFromEventAction implements SessionAware, PortletActionC
         return SUCCESS;
     }
 
-	public void setSession(Map session) {
+	public void setSession(Map<String,Object> session) {
 		location = (String)session.get(RENDER_DIRECT_LOCATION);
 	}
 }

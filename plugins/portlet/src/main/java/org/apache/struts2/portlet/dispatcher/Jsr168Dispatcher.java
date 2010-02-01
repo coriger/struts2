@@ -22,7 +22,6 @@
 package org.apache.struts2.portlet.dispatcher;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
@@ -467,7 +466,7 @@ public class Jsr168Dispatcher extends GenericPortlet implements StrutsStatics,
      *
      * @return a Map of all application attributes.
      */
-    protected Map getApplicationMap() {
+    protected Map<String,Object> getApplicationMap() {
         return new PortletApplicationMap(getPortletContext());
     }
 

@@ -35,7 +35,7 @@ import javax.portlet.PortletContext;
  * {@link javax.portlet.PortletContext} of a Portlet.
  *
  */
-public class PortletApplicationMap extends AbstractMap implements Serializable {
+public class PortletApplicationMap extends AbstractMap<String,Object> implements Serializable {
 
     private static final long serialVersionUID = 2296107511063504414L;
 
@@ -182,7 +182,7 @@ public class PortletApplicationMap extends AbstractMap implements Serializable {
      *            the value to set.
      * @return the attribute that was just set.
      */
-    public Object put(Object key, Object value) {
+    public Object put(String key, Object value) {
         entries = null;
         context.setAttribute(key.toString(), value);
 

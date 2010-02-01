@@ -35,11 +35,11 @@ import com.opensymphony.xwork2.util.logging.LoggerFactory;
  * A simple implementation of the {@link java.util.Map} interface to handle a collection of request attributes.
  *
  */
-public class PortletRequestMap extends AbstractMap {
+public class PortletRequestMap extends AbstractMap<String,Object> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PortletRequestMap.class);
 
-    private Set<Object> entries = null;
+    private Set<Entry<String,Object>> entries = null;
     private PortletRequest request = null;
 
     /**
@@ -55,12 +55,15 @@ public class PortletRequestMap extends AbstractMap {
      * Removes all attributes from the request as well as clears entries in this
      * map.
      */
-    public void clear() {
+    
+	public void clear() {
         entries = null;
-        Enumeration keys = request.getAttributeNames();
+        
+        @SuppressWarnings("unchecked")
+        Enumeration<String> keys = request.getAttributeNames();
 
         while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
+            String key = keys.nextElement();
             request.removeAttribute(key);
         }
     }
@@ -70,18 +73,22 @@ public class PortletRequestMap extends AbstractMap {
      *
      * @return a Set of attributes from the portlet request.
      */
-    public Set entrySet() {
+    
+	public Set<Entry<String,Object>> entrySet() {
         if (entries == null) {
-            entries = new HashSet<Object>();
+            entries = new HashSet<Entry<String,Object>>();
 
-            Enumeration enumeration = request.getAttributeNames();
+            @SuppressWarnings("unchecked")
+            Enumeration<String> enumeration = request.getAttributeNames();
 
             while (enumeration.hasMoreElements()) {
                 final String key = enumeration.nextElement().toString();
                 final Object value = request.getAttribute(key);
-                entries.add(new Entry() {
-                    public boolean equals(Object obj) {
-                        Entry entry = (Entry) obj;
+                entries.add(new Entry<String,Object>() {
+                    
+					public boolean equals(Object obj) {
+						@SuppressWarnings("unchecked")
+                        Entry<String,Object> entry = (Entry<String,Object>) obj;
 
                         return ((key == null) ? (entry.getKey() == null) : key
                                 .equals(entry.getKey()))
@@ -94,7 +101,7 @@ public class PortletRequestMap extends AbstractMap {
                                 ^ ((value == null) ? 0 : value.hashCode());
                     }
 
-                    public Object getKey() {
+                    public String getKey() {
                         return key;
                     }
 
@@ -121,7 +128,7 @@ public class PortletRequestMap extends AbstractMap {
      * @param key the name of the request attribute.
      * @return the request attribute or <tt>null</tt> if it doesn't exist.
      */
-    public Object get(Object key) {
+    public Object get(String key) {
         return request.getAttribute(key.toString());
     }
 
@@ -132,7 +139,7 @@ public class PortletRequestMap extends AbstractMap {
      * @param value the value to set.
      * @return the object that was just set.
      */
-    public Object put(Object key, Object value) {
+    public Object put(String key, Object value) {
         entries = null;
         request.setAttribute(key.toString(), value);
 
@@ -146,7 +153,7 @@ public class PortletRequestMap extends AbstractMap {
      * @return the value that was removed or <tt>null</tt> if the value was
      * not found (and hence, not removed).
      */
-    public Object remove(Object key) {
+    public Object remove(String key) {
         entries = null;
 
         Object value = get(key);

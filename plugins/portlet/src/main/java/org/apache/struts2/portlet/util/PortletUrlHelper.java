@@ -35,7 +35,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
-import org.apache.commons.collections.iterators.EntrySetMapIterator;
 import org.apache.commons.lang.xwork.StringUtils;
 import org.apache.struts2.StrutsException;
 import org.apache.struts2.portlet.PortletActionConstants;
@@ -91,13 +90,13 @@ public class PortletUrlHelper implements UrlHelper {
             String scheme, String type, String portletMode, String windowState,
             boolean includeContext, boolean encodeResult) {
     	StringBuffer resultingAction = new StringBuffer();
-        RenderRequest request = PortletActionContext.getRenderRequest();
-        RenderResponse response = PortletActionContext.getRenderResponse();
+        RenderRequest request = context.getRenderRequest();
+        RenderResponse response = context.getRenderResponse();
         LOG.debug("Creating url. Action = " + action + ", Namespace = "
                 + namespace + ", Type = " + type);
         namespace = prependNamespace(namespace, portletMode);
         if (StringUtils.isEmpty(portletMode)) {
-            portletMode = PortletActionContext.getRenderRequest().getPortletMode().toString();
+            portletMode = context.getRenderRequest().getPortletMode().toString();
         }
         String result = null;
         int paramStartIndex = action.indexOf('?');
@@ -171,12 +170,12 @@ public class PortletUrlHelper implements UrlHelper {
      */
     private String prependNamespace(String namespace, String portletMode) {
         StringBuffer sb = new StringBuffer();
-        PortletMode mode = PortletActionContext.getRenderRequest().getPortletMode();
+        PortletMode mode = context.getRenderRequest().getPortletMode();
         if(StringUtils.isNotEmpty(portletMode)) {
             mode = new PortletMode(portletMode);
         }
-        String portletNamespace = PortletActionContext.getPortletNamespace();
-        String modeNamespace = (String)PortletActionContext.getModeNamespaceMap().get(mode);
+        String portletNamespace = context.getPortletNamespace();
+        String modeNamespace = (String)context.getModeNamespaceMap().get(mode);
         LOG.debug("PortletNamespace: " + portletNamespace + ", modeNamespace: " + modeNamespace);
         if(StringUtils.isNotEmpty(portletNamespace)) {
             sb.append(portletNamespace);
@@ -229,8 +228,8 @@ public class PortletUrlHelper implements UrlHelper {
                 throw new StrutsException("Encoding "+ENCODING+" not found");
             }
         }
-        RenderResponse resp = PortletActionContext.getRenderResponse();
-        RenderRequest req = PortletActionContext.getRenderRequest();
+        RenderResponse resp = context.getRenderResponse();
+        RenderRequest req = context.getRenderRequest();
         return resp.encodeURL(req.getContextPath() + sb.toString());
     }
 

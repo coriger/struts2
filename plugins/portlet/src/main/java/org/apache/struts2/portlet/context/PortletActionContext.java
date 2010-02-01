@@ -27,6 +27,7 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
+import javax.portlet.PortletMode;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
@@ -211,8 +212,9 @@ public class PortletActionContext implements PortletActionConstants {
      *
      * @return The map of the namespaces for each mode.
      */
-    public static Map getModeNamespaceMap() {
-        return (Map)getContext().get(MODE_NAMESPACE_MAP);
+    @SuppressWarnings("unchecked")
+	public static Map<PortletMode,String> getModeNamespaceMap() {
+        return (Map<PortletMode,String>)getContext().get(MODE_NAMESPACE_MAP);
     }
     
     /**
