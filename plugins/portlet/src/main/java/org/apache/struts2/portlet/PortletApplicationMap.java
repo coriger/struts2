@@ -41,7 +41,7 @@ public class PortletApplicationMap extends AbstractMap<String,Object> implements
 
     private PortletContext context;
 
-    private Set<Object> entries;
+    private Set<Entry<String,Object>> entries;
 
     /**
      * Creates a new map object given the {@link PortletContext}.
@@ -56,10 +56,12 @@ public class PortletApplicationMap extends AbstractMap<String,Object> implements
      * Removes all entries from the Map and removes all attributes from the
      * portlet context.
      */
-    public void clear() {
+    
+	public void clear() {
         entries = null;
 
-        Enumeration e = context.getAttributeNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = context.getAttributeNames();
 
         while (e.hasMoreElements()) {
             context.removeAttribute(e.nextElement().toString());
@@ -73,19 +75,21 @@ public class PortletApplicationMap extends AbstractMap<String,Object> implements
      * @return a Set of all portlet context attributes as well as context init
      *         parameters.
      */
-    public Set entrySet() {
+    public Set<Entry<String,Object>> entrySet() {
         if (entries == null) {
-            entries = new HashSet<Object>();
+            entries = new HashSet<Entry<String,Object>>();
 
             // Add portlet context attributes
-            Enumeration enumeration = context.getAttributeNames();
+            @SuppressWarnings("unchecked")
+            Enumeration<String> enumeration = context.getAttributeNames();
 
             while (enumeration.hasMoreElements()) {
                 final String key = enumeration.nextElement().toString();
                 final Object value = context.getAttribute(key);
-                entries.add(new Map.Entry() {
+                entries.add(new Map.Entry<String,Object>() {
                     public boolean equals(Object obj) {
-                        Map.Entry entry = (Map.Entry) obj;
+                        @SuppressWarnings("unchecked")
+                        Map.Entry<String,Object> entry = (Map.Entry<String,Object>) obj;
 
                         return ((key == null) ? (entry.getKey() == null) : key
                                 .equals(entry.getKey()))
@@ -98,7 +102,7 @@ public class PortletApplicationMap extends AbstractMap<String,Object> implements
                                 ^ ((value == null) ? 0 : value.hashCode());
                     }
 
-                    public Object getKey() {
+                    public String getKey() {
                         return key;
                     }
 
@@ -115,14 +119,17 @@ public class PortletApplicationMap extends AbstractMap<String,Object> implements
             }
 
             // Add portlet context init params
-            enumeration = context.getInitParameterNames();
+            @SuppressWarnings("unchecked")
+            Enumeration<String> parameters = context.getInitParameterNames();
 
-            while (enumeration.hasMoreElements()) {
-                final String key = enumeration.nextElement().toString();
+            while (parameters.hasMoreElements()) {
+                final String key = parameters.nextElement().toString();
                 final Object value = context.getInitParameter(key);
-                entries.add(new Map.Entry() {
+                entries.add(new Map.Entry<String,Object>() {
                     public boolean equals(Object obj) {
-                        Map.Entry entry = (Map.Entry) obj;
+
+                        @SuppressWarnings("unchecked")
+                        Map.Entry<String,Object> entry = (Map.Entry<String,Object>) obj;
 
                         return ((key == null) ? (entry.getKey() == null) : key
                                 .equals(entry.getKey()))
@@ -135,7 +142,7 @@ public class PortletApplicationMap extends AbstractMap<String,Object> implements
                                 ^ ((value == null) ? 0 : value.hashCode());
                     }
 
-                    public Object getKey() {
+                    public String getKey() {
                         return key;
                     }
 
@@ -164,7 +171,7 @@ public class PortletApplicationMap extends AbstractMap<String,Object> implements
      * @return the portlet context attribute or init parameter or <tt>null</tt>
      *         if the entry is not found.
      */
-    public Object get(Object key) {
+    public Object get(String key) {
         // Try context attributes first, then init params
         // This gives the proper shadowing effects
         String keyString = key.toString();
@@ -196,7 +203,7 @@ public class PortletApplicationMap extends AbstractMap<String,Object> implements
      *            the attribute to remove.
      * @return the entry that was just removed.
      */
-    public Object remove(Object key) {
+    public Object remove(String key) {
         entries = null;
 
         Object value = get(key);
