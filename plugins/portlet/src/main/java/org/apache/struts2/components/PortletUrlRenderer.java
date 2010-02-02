@@ -23,6 +23,7 @@ package org.apache.struts2.components;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Map;
 
 import org.apache.struts2.dispatcher.mapper.ActionMapper; 
 import org.apache.struts2.StrutsException;
@@ -74,19 +75,21 @@ public class PortletUrlRenderer implements UrlRenderer {
 			if(urlComponent.getAction() != null) {
 				action = urlComponent.findString(urlComponent.getAction());
 			}
-			String scheme = urlComponent.getHttpServletRequest().getScheme();
+			/*String scheme = urlComponent.getHttpServletRequest().getScheme();
 
 			if (urlComponent.getScheme() != null) {
 				scheme = urlComponent.getScheme();
-			}
+			} */
 
 			String result;
 			urlComponent.setNamespace(urlComponent.determineNamespace(urlComponent.getNamespace(), urlComponent.getStack(), urlComponent.getHttpServletRequest()));
+			@SuppressWarnings("unchecked")
+			Map<String,Object> parameters = urlComponent.getParameters();
 			if (onlyActionSpecified(urlComponent)) {
-				result = urlHelper.buildUrl(action, urlComponent.getNamespace(), urlComponent.getMethod(), urlComponent.getParameters(), urlComponent.getPortletUrlType(),
+				result = urlHelper.buildUrl(action, urlComponent.getNamespace(), urlComponent.getMethod(), parameters, urlComponent.getPortletUrlType(),
                         urlComponent.getPortletMode(), urlComponent.getWindowState());
 			} else if(onlyValueSpecified(urlComponent)){
-				result = urlHelper.buildResourceUrl(urlComponent.getValue(), urlComponent.getParameters());
+				result = urlHelper.buildResourceUrl(urlComponent.getValue(), parameters);
 			}
 			else {
 				result = createDefaultUrl(urlComponent);
@@ -115,10 +118,12 @@ public class PortletUrlRenderer implements UrlRenderer {
 
 	private String createDefaultUrl(UrlProvider urlComponent) {
 		String result;
+		@SuppressWarnings("unchecked")
+		Map<String,Object> parameters = urlComponent.getParameters();
 		ActionInvocation ai = (ActionInvocation)urlComponent.getStack().getContext().get(
 				ActionContext.ACTION_INVOCATION);
 		String action = ai.getProxy().getActionName();
-		result = urlHelper.buildUrl(action, urlComponent.getNamespace(), urlComponent.getMethod(), urlComponent.getParameters(),
+		result = urlHelper.buildUrl(action, urlComponent.getNamespace(), urlComponent.getMethod(), parameters,
                 urlComponent.getPortletUrlType(), urlComponent.getPortletMode(), urlComponent.getWindowState());
 		return result;
 	}
@@ -156,8 +161,10 @@ public class PortletUrlRenderer implements UrlRenderer {
 				}
 			}
 			if (action != null) {
+				@SuppressWarnings("unchecked")
+				Map<String,Object> parameters = formComponent.getParameters();
 				String result = urlHelper.buildUrl(action, namespace, null,
-						formComponent.getParameters(), type, formComponent.portletMode, formComponent.windowState);
+						parameters, type, formComponent.portletMode, formComponent.windowState);
 				formComponent.addParameter("action", result);
 
 

@@ -302,13 +302,16 @@ public class PortletUrlTagTest extends StrutsTestCase {
 		assertEquals(WindowState.NORMAL, renderUrl.getWindowState());
 	}
 
+	/*
+	 * LBN: Removed /view since it should not be added here
+	 */
 	public void testUrlWithNoActionOrMethod() throws Exception {
 		actionProxy.setActionName("currentExecutingAction");
 		actionProxy.setNamespace("/currentNamespace");
 		tag.doStartTag();
 		tag.doEndTag();
 
-		assertEquals("/view/currentNamespace/currentExecutingAction", renderUrl
+		assertEquals("/currentNamespace/currentExecutingAction", renderUrl
 				.getParameter(PortletActionConstants.ACTION_PARAM));
 		assertEquals(PortletMode.VIEW.toString(), renderUrl.getParameter(PortletActionConstants.MODE_PARAM));
 		assertEquals(PortletMode.VIEW, renderUrl.getPortletMode());

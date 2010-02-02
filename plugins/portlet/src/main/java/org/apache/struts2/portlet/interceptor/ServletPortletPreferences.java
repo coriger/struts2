@@ -37,24 +37,25 @@ import javax.portlet.ValidatorException;
  */
 public class ServletPortletPreferences implements PortletPreferences {
 
-    private Map session;
+    private Map<String,Object> session;
     private String PREFERENCES_KEY = "_portlet-preferences";
     
-    public ServletPortletPreferences(Map session) {
+    public ServletPortletPreferences(Map<String,Object> session) {
         this.session = session;
     }
     
-    public Map getMap() {
-        Map map = (Map) session.get(PREFERENCES_KEY);
+    public Map<String,Object> getMap() {
+    	@SuppressWarnings("unchecked")
+        Map<String,Object> map = (Map<String,Object>) session.get(PREFERENCES_KEY);
         if (map == null) {
-            map = new HashMap();
+            map = new HashMap<String,Object>();
             session.put(PREFERENCES_KEY, map);
         }
         return map;
     }
 
-    public Enumeration getNames() {
-        return new Vector(getMap().keySet()).elements();
+    public Enumeration<String> getNames() {
+        return new Vector<String>(getMap().keySet()).elements();
     }
 
     public String getValue(String key, String def) {
@@ -78,7 +79,7 @@ public class ServletPortletPreferences implements PortletPreferences {
     }
 
     public void reset(String arg0) throws ReadOnlyException {
-        session.put(PREFERENCES_KEY, new HashMap());
+        session.put(PREFERENCES_KEY, new HashMap<String,Object>());
     }
 
     public void setValue(String key, String value) throws ReadOnlyException {

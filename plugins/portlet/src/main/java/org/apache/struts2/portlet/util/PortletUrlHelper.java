@@ -45,271 +45,300 @@ import com.opensymphony.xwork2.util.logging.Logger;
 import com.opensymphony.xwork2.util.logging.LoggerFactory;
 
 /**
- * Helper class for creating Portlet URLs. Portlet URLs are fundamentally different from regular
- * servlet URLs since they never target the application itself; all requests go through the portlet
- * container and must therefore be programatically constructed using the
+ * Helper class for creating Portlet URLs. Portlet URLs are fundamentally
+ * different from regular servlet URLs since they never target the application
+ * itself; all requests go through the portlet container and must therefore be
+ * programatically constructed using the
  * {@link javax.portlet.RenderResponse#createActionURL()} and
  * {@link javax.portlet.RenderResponse#createRenderURL()} APIs.
- *
+ * 
  */
 public class PortletUrlHelper implements UrlHelper {
-	
-	ContextUtil context = new PortletActionContext(); 
-	
-    public static final String ENCODING = "UTF-8";
 
-    private static final Logger LOG = LoggerFactory.getLogger(PortletUrlHelper.class);
-    
-    /**
-     * Create a portlet URL with for the specified action and namespace.
-     *
-     * @param action The action the URL should invoke.
-     * @param namespace The namespace of the action to invoke.
-     * @param method The method of the action to invoke.
-     * @param params The parameters of the URL.
-     * @param type The type of the url, either <tt>action</tt> or <tt>render</tt>
-     * @param mode The PortletMode of the URL.
-     * @param state The WindowState of the URL.
-     * @return The URL String.
-     */
-    
-    public String buildUrl(String action, String namespace, String method, Map<String,Object> params,
-            String type, String mode, String state) {
-        return buildUrl(action, namespace, method, params, null, type, mode, state,
-                true, true);
-    }
+	ContextUtil context = new PortletActionContext();
 
-    /**
-     * Create a portlet URL with for the specified action and namespace.
-     *
-     * @see #buildUrl(String, String, Map, String, String, String)
-     */
-    
-    public String buildUrl(String action, String namespace, String method, Map<String,Object> params,
-            String scheme, String type, String portletMode, String windowState,
-            boolean includeContext, boolean encodeResult) {
-    	StringBuffer resultingAction = new StringBuffer();
-        RenderRequest request = context.getRenderRequest();
-        RenderResponse response = context.getRenderResponse();
-        LOG.debug("Creating url. Action = " + action + ", Namespace = "
-                + namespace + ", Type = " + type);
-        namespace = prependNamespace(namespace, portletMode);
-        if (StringUtils.isEmpty(portletMode)) {
-            portletMode = context.getRenderRequest().getPortletMode().toString();
-        }
-        String result = null;
-        int paramStartIndex = action.indexOf('?');
-        if (paramStartIndex > 0) {
-            String value = action;
-            action = value.substring(0, value.indexOf('?'));
-            String queryStr = value.substring(paramStartIndex + 1);
-            StringTokenizer tok = new StringTokenizer(queryStr, "&");
-            while (tok.hasMoreTokens()) {
-                String paramVal = tok.nextToken();
-                String key = paramVal.substring(0, paramVal.indexOf('='));
-                String val = paramVal.substring(paramVal.indexOf('=') + 1);
-                params.put(key, new String[] { val });
-            }
-        }
-        if (StringUtils.isNotEmpty(namespace)) {
-            resultingAction.append(namespace);
-            if(!action.startsWith("/") && !namespace.endsWith("/")) {
-                resultingAction.append("/");
-            }
-        }
-        resultingAction.append(action);
-        if(StringUtils.isNotEmpty(method)) {
-        	resultingAction.append("!").append(method);
-        }
-        LOG.debug("Resulting actionPath: " + resultingAction);
-        params.put(PortletActionConstants.ACTION_PARAM, new String[] { resultingAction.toString() });
+	public static final String ENCODING = "UTF-8";
 
-        PortletURL url = null;
-        if ("action".equalsIgnoreCase(type)) {
-            LOG.debug("Creating action url");
-            url = response.createActionURL();
-        } else {
-            LOG.debug("Creating render url");
-            url = response.createRenderURL();
-        }
+	private static final Logger LOG = LoggerFactory
+			.getLogger(PortletUrlHelper.class);
 
-        params.put(PortletActionConstants.MODE_PARAM, portletMode);
-        url.setParameters(ensureParamsAreStringArrays(params));
+	/**
+	 * Create a portlet URL with for the specified action and namespace.
+	 * 
+	 * @param action
+	 *            The action the URL should invoke.
+	 * @param namespace
+	 *            The namespace of the action to invoke.
+	 * @param method
+	 *            The method of the action to invoke.
+	 * @param params
+	 *            The parameters of the URL.
+	 * @param type
+	 *            The type of the url, either <tt>action</tt> or <tt>render</tt>
+	 * @param mode
+	 *            The PortletMode of the URL.
+	 * @param state
+	 *            The WindowState of the URL.
+	 * @return The URL String.
+	 */
 
-        if ("HTTPS".equalsIgnoreCase(scheme)) {
-            try {
-                url.setSecure(true);
-            } catch (PortletSecurityException e) {
-                LOG.error("Cannot set scheme to https", e);
-            }
-        }
-        try {
-            url.setPortletMode(getPortletMode(request, portletMode));
-            url.setWindowState(getWindowState(request, windowState));
-        } catch (Exception e) {
-            LOG.error("Unable to set mode or state:" + e.getMessage(), e);
-        }
-        result = url.toString();
-        // TEMP BUG-WORKAROUND FOR DOUBLE ESCAPING OF AMPERSAND
-        if(result.indexOf("&amp;") >= 0) {
-            result = result.replace("&amp;", "&");
-        }
-        return result;
+	public String buildUrl(String action, String namespace, String method,
+			Map<String, Object> params, String type, String mode, String state) {
+		return buildUrl(action, namespace, method, params, null, type, mode,
+				state, true, true);
+	}
 
-    }
+	/**
+	 * Create a portlet URL with for the specified action and namespace.
+	 * 
+	 * @see #buildUrl(String, String, Map, String, String, String)
+	 */
 
-    /**
-     *
-     * Prepend the namespace configuration for the specified namespace and PortletMode.
-     *
-     * @param namespace The base namespace.
-     * @param portletMode The PortletMode.
-     *
-     * @return prepended namespace.
-     */
-    private String prependNamespace(String namespace, String portletMode) {
-        StringBuffer sb = new StringBuffer();
-        PortletMode mode = context.getRenderRequest().getPortletMode();
-        if(StringUtils.isNotEmpty(portletMode)) {
-            mode = new PortletMode(portletMode);
-        }
-        String portletNamespace = context.getPortletNamespace();
-        String modeNamespace = (String)context.getModeNamespaceMap().get(mode);
-        LOG.debug("PortletNamespace: " + portletNamespace + ", modeNamespace: " + modeNamespace);
-        if(StringUtils.isNotEmpty(portletNamespace)) {
-            sb.append(portletNamespace);
-        }
-        if(StringUtils.isNotEmpty(modeNamespace)) {
-            if(!modeNamespace.startsWith("/")) {
-                sb.append("/");
-            }
-            sb.append(modeNamespace);
-        }
-        if(StringUtils.isNotEmpty(namespace)) {
-            if(!namespace.startsWith("/")) {
-                sb.append("/");
-            }
-            sb.append(namespace);
-        }
-        LOG.debug("Resulting namespace: " + sb);
-        return sb.toString();
-    }
+	public String buildUrl(String action, String namespace, String method,
+			Map<String, Object> params, String scheme, String type,
+			String portletMode, String windowState, boolean includeContext,
+			boolean encodeResult) {
+		StringBuffer resultingAction = new StringBuffer();
+		RenderRequest request = context.getRenderRequest();
+		RenderResponse response = context.getRenderResponse();
+		LOG.debug("Creating url. Action = " + action + ", Namespace = "
+				+ namespace + ", Type = " + type);
+		namespace = prependNamespace(namespace, portletMode);
+		if (StringUtils.isEmpty(portletMode)) {
+			portletMode = context.getRenderRequest().getPortletMode()
+					.toString();
+		}
+		String result = null;
+		int paramStartIndex = action.indexOf('?');
+		if (paramStartIndex > 0) {
+			String value = action;
+			action = value.substring(0, value.indexOf('?'));
+			String queryStr = value.substring(paramStartIndex + 1);
+			StringTokenizer tok = new StringTokenizer(queryStr, "&");
+			while (tok.hasMoreTokens()) {
+				String paramVal = tok.nextToken();
+				String key = paramVal.substring(0, paramVal.indexOf('='));
+				String val = paramVal.substring(paramVal.indexOf('=') + 1);
+				params.put(key, new String[] { val });
+			}
+		}
+		if (StringUtils.isNotEmpty(namespace)) {
+			resultingAction.append(namespace);
+			if (!action.startsWith("/") && !namespace.endsWith("/")) {
+				resultingAction.append("/");
+			}
+		}
+		resultingAction.append(action);
+		if (StringUtils.isNotEmpty(method)) {
+			resultingAction.append("!").append(method);
+		}
+		LOG.debug("Resulting actionPath: " + resultingAction);
+		params.put(PortletActionConstants.ACTION_PARAM,
+				new String[] { resultingAction.toString() });
 
-    /**
-     * Encode an url to a non Struts action resource, like stylesheet, image or
-     * servlet.
-     *
-     * @param value
-     * @return encoded url to non Struts action resources.
-     */
-    
-    public String buildResourceUrl(String value, Map<String, Object> params) {
-        StringBuffer sb = new StringBuffer();
-        // Relative URLs are not allowed in a portlet
-        if (!value.startsWith("/")) {
-            sb.append("/");
-        }
-        sb.append(value);
-        if(params != null && params.size() > 0) {
-            sb.append("?");
-            Iterator<Map.Entry<String, Object>> it = params.entrySet().iterator();
-            try {
-            while(it.hasNext()) {
-            	Map.Entry<String, Object> entry = it.next();
+		PortletURL url = null;
+		if ("action".equalsIgnoreCase(type)) {
+			LOG.debug("Creating action url");
+			url = response.createActionURL();
+		} else {
+			LOG.debug("Creating render url");
+			url = response.createRenderURL();
+		}
 
-                sb.append(URLEncoder.encode(entry.getKey(), ENCODING)).append("=");
-                sb.append(URLEncoder.encode(entry.getValue().toString(), ENCODING));
-                if(it.hasNext()) {
-                    sb.append("&");
-                }
-            }
-            } catch (UnsupportedEncodingException e) {
-                throw new StrutsException("Encoding "+ENCODING+" not found");
-            }
-        }
-        RenderResponse resp = context.getRenderResponse();
-        RenderRequest req = context.getRenderRequest();
-        return resp.encodeURL(req.getContextPath() + sb.toString());
-    }
+		params.put(PortletActionConstants.MODE_PARAM, portletMode);
+		url.setParameters(ensureParamsAreStringArrays(params));
 
-    /**
-     * Will ensure that all entries in <code>params</code> are String arrays,
-     * as requried by the setParameters on the PortletURL.
-     *
-     * @param params The parameters to the URL.
-     * @return A Map with all parameters as String arrays.
-     */
-    
-    public Map<String,String[]> ensureParamsAreStringArrays(Map<String, Object> params) {
-        Map<String, String[]> result = null;
-        if (params != null) {
-            result = new LinkedHashMap<String, String[]>(params.size());
-            Iterator<Map.Entry<String, Object>> it = params.entrySet().iterator();
-            while (it.hasNext()) {
-            	Map.Entry<String, Object> entry = it.next();
-            	Object val = entry.getValue();
-                if (val instanceof String[]) {
-                    result.put(entry.getKey(), (String[])val);
-                } else {
-                    result.put(entry.getKey(), new String[] { val.toString() });
-                }
-            }
-        }
-        return result;
-    }
+		if ("HTTPS".equalsIgnoreCase(scheme)) {
+			try {
+				url.setSecure(true);
+			} catch (PortletSecurityException e) {
+				LOG.error("Cannot set scheme to https", e);
+			}
+		}
+		try {
+			url.setPortletMode(getPortletMode(request, portletMode));
+			url.setWindowState(getWindowState(request, windowState));
+		} catch (Exception e) {
+			LOG.error("Unable to set mode or state:" + e.getMessage(), e);
+		}
+		result = url.toString();
+		// TEMP BUG-WORKAROUND FOR DOUBLE ESCAPING OF AMPERSAND
+		if (result.indexOf("&amp;") >= 0) {
+			result = result.replace("&amp;", "&");
+		}
+		return result;
 
-    /**
-     * Convert the given String to a WindowState object.
-     *
-     * @param portletReq The RenderRequest.
-     * @param windowState The WindowState as a String.
-     * @return The WindowState that mathces the <tt>windowState</tt> String, or if
-     * the Sring is blank, the current WindowState.
-     */
-    private WindowState getWindowState(RenderRequest portletReq,
-            String windowState) {
-        WindowState state = portletReq.getWindowState();
-        if (StringUtils.isNotEmpty(windowState)) {
-            state = portletReq.getWindowState();
-            if ("maximized".equalsIgnoreCase(windowState)) {
-                state = WindowState.MAXIMIZED;
-            } else if ("normal".equalsIgnoreCase(windowState)) {
-                state = WindowState.NORMAL;
-            } else if ("minimized".equalsIgnoreCase(windowState)) {
-                state = WindowState.MINIMIZED;
-            }
-        }
-        if(state == null) {
-            state = WindowState.NORMAL;
-        }
-        return state;
-    }
+	}
 
-    /**
-     * Convert the given String to a PortletMode object.
-     *
-     * @param portletReq The RenderRequest.
-     * @param portletMode The PortletMode as a String.
-     * @return The PortletMode that mathces the <tt>portletMode</tt> String, or if
-     * the Sring is blank, the current PortletMode.
-     */
-    private PortletMode getPortletMode(RenderRequest portletReq,
-            String portletMode) {
-        PortletMode mode = portletReq.getPortletMode();
+	/**
+	 * 
+	 * Prepend the namespace configuration for the specified namespace and
+	 * PortletMode.
+	 * 
+	 * @param namespace
+	 *            The base namespace.
+	 * @param portletMode
+	 *            The PortletMode.
+	 * 
+	 * @return prepended namespace.
+	 */
+	private String prependNamespace(String namespace, String portletMode) {
+		StringBuffer sb = new StringBuffer();
+		PortletMode mode = context.getRenderRequest().getPortletMode();
+		if (StringUtils.isNotEmpty(portletMode)) {
+			mode = new PortletMode(portletMode);
+		}
+		String portletNamespace = context.getPortletNamespace();
+		String modeNamespace = (String) context.getModeNamespaceMap().get(mode);
+		LOG.debug("PortletNamespace: " + portletNamespace + ", modeNamespace: "
+				+ modeNamespace);
+		if (StringUtils.isEmpty(namespace)) {
+			if (StringUtils.isNotEmpty(portletNamespace)) {
+				sb.append(portletNamespace);
+			}
+			if (StringUtils.isNotEmpty(modeNamespace)) {
+				if (!modeNamespace.startsWith("/")) {
+					sb.append("/");
+				}
+				sb.append(modeNamespace);
+			}
+		} else {
+			if (StringUtils.isNotEmpty(namespace)) {
+				if (!namespace.startsWith("/")) {
+					sb.append("/");
+				}
+				sb.append(namespace);
+			}
+		}
+		LOG.debug("Resulting namespace: " + sb);
+		return sb.toString();
+	}
 
-        if (StringUtils.isNotEmpty(portletMode)) {
-            mode = portletReq.getPortletMode();
-            if ("edit".equalsIgnoreCase(portletMode)) {
-                mode = PortletMode.EDIT;
-            } else if ("view".equalsIgnoreCase(portletMode)) {
-                mode = PortletMode.VIEW;
-            } else if ("help".equalsIgnoreCase(portletMode)) {
-                mode = PortletMode.HELP;
-            }
-        }
-        if(mode == null) {
-            mode = PortletMode.VIEW;
-        }
-        return mode;
-    }
+	/**
+	 * Encode an url to a non Struts action resource, like stylesheet, image or
+	 * servlet.
+	 * 
+	 * @param value
+	 * @return encoded url to non Struts action resources.
+	 */
+
+	public String buildResourceUrl(String value, Map<String, Object> params) {
+		StringBuffer sb = new StringBuffer();
+		// Relative URLs are not allowed in a portlet
+		if (!value.startsWith("/")) {
+			sb.append("/");
+		}
+		sb.append(value);
+		if (params != null && params.size() > 0) {
+			sb.append("?");
+			Iterator<Map.Entry<String, Object>> it = params.entrySet()
+					.iterator();
+			try {
+				while (it.hasNext()) {
+					Map.Entry<String, Object> entry = it.next();
+
+					sb.append(URLEncoder.encode(entry.getKey(), ENCODING))
+							.append("=");
+					sb.append(URLEncoder.encode(entry.getValue().toString(),
+							ENCODING));
+					if (it.hasNext()) {
+						sb.append("&");
+					}
+				}
+			} catch (UnsupportedEncodingException e) {
+				throw new StrutsException("Encoding " + ENCODING + " not found");
+			}
+		}
+		RenderResponse resp = context.getRenderResponse();
+		RenderRequest req = context.getRenderRequest();
+		return resp.encodeURL(req.getContextPath() + sb.toString());
+	}
+
+	/**
+	 * Will ensure that all entries in <code>params</code> are String arrays, as
+	 * requried by the setParameters on the PortletURL.
+	 * 
+	 * @param params
+	 *            The parameters to the URL.
+	 * @return A Map with all parameters as String arrays.
+	 */
+
+	public Map<String, String[]> ensureParamsAreStringArrays(
+			Map<String, Object> params) {
+		Map<String, String[]> result = null;
+		if (params != null) {
+			result = new LinkedHashMap<String, String[]>(params.size());
+			Iterator<Map.Entry<String, Object>> it = params.entrySet()
+					.iterator();
+			while (it.hasNext()) {
+				Map.Entry<String, Object> entry = it.next();
+				Object val = entry.getValue();
+				if (val instanceof String[]) {
+					result.put(entry.getKey(), (String[]) val);
+				} else {
+					result.put(entry.getKey(), new String[] { val.toString() });
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Convert the given String to a WindowState object.
+	 * 
+	 * @param portletReq
+	 *            The RenderRequest.
+	 * @param windowState
+	 *            The WindowState as a String.
+	 * @return The WindowState that mathces the <tt>windowState</tt> String, or
+	 *         if the Sring is blank, the current WindowState.
+	 */
+	private WindowState getWindowState(RenderRequest portletReq,
+			String windowState) {
+		WindowState state = portletReq.getWindowState();
+		if (StringUtils.isNotEmpty(windowState)) {
+			state = portletReq.getWindowState();
+			if ("maximized".equalsIgnoreCase(windowState)) {
+				state = WindowState.MAXIMIZED;
+			} else if ("normal".equalsIgnoreCase(windowState)) {
+				state = WindowState.NORMAL;
+			} else if ("minimized".equalsIgnoreCase(windowState)) {
+				state = WindowState.MINIMIZED;
+			}
+		}
+		if (state == null) {
+			state = WindowState.NORMAL;
+		}
+		return state;
+	}
+
+	/**
+	 * Convert the given String to a PortletMode object.
+	 * 
+	 * @param portletReq
+	 *            The RenderRequest.
+	 * @param portletMode
+	 *            The PortletMode as a String.
+	 * @return The PortletMode that mathces the <tt>portletMode</tt> String, or
+	 *         if the Sring is blank, the current PortletMode.
+	 */
+	private PortletMode getPortletMode(RenderRequest portletReq,
+			String portletMode) {
+		PortletMode mode = portletReq.getPortletMode();
+
+		if (StringUtils.isNotEmpty(portletMode)) {
+			mode = portletReq.getPortletMode();
+			if ("edit".equalsIgnoreCase(portletMode)) {
+				mode = PortletMode.EDIT;
+			} else if ("view".equalsIgnoreCase(portletMode)) {
+				mode = PortletMode.VIEW;
+			} else if ("help".equalsIgnoreCase(portletMode)) {
+				mode = PortletMode.HELP;
+			}
+		}
+		if (mode == null) {
+			mode = PortletMode.VIEW;
+		}
+		return mode;
+	}
 }

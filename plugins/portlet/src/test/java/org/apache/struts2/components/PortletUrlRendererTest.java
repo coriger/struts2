@@ -21,9 +21,7 @@
 
 package org.apache.struts2.components;
 
-import java.io.IOException;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +31,6 @@ import javax.portlet.PortletURL;
 import org.apache.struts2.StrutsStatics;
 import org.apache.struts2.StrutsTestCase;
 import org.apache.struts2.portlet.PortletActionConstants;
-import org.apache.struts2.portlet.context.PortletActionContext;
 import org.apache.struts2.portlet.servlet.PortletServletRequest;
 import org.apache.struts2.portlet.servlet.PortletServletResponse;
 import org.easymock.EasyMock;
@@ -95,6 +92,8 @@ public class PortletUrlRendererTest extends StrutsTestCase {
 	/**
 	 * Ensure that the namespace of the current executing action is used when no
 	 * namespace is specified. (WW-1875)
+	 * 
+	 * LBN: should not prepend /view
 	 */
 	public void testShouldIncludeCurrentNamespaceIfNoNamespaceSpecifiedForRenderUrl()
 			throws Exception {
@@ -116,13 +115,16 @@ public class PortletUrlRendererTest extends StrutsTestCase {
 
 		String action = renderUrl
 				.getParameter(PortletActionConstants.ACTION_PARAM);
-		assertEquals("/view/current_namespace/testAction", action);
+		assertEquals("/current_namespace/testAction", action);
 	}
 
-	/**
+	/*
 	 * Ensure that the namespace of the current executing action is used when no
 	 * namespace is specified. (WW-1875)
+	 * 
+	 * LBN: /view should not be prepended here
 	 */
+	
 	public void testShouldIncludeCurrentNamespaceIfNoNamespaceSpecifiedForRenderFormUrl()
 			throws Exception {
 
@@ -142,7 +144,27 @@ public class PortletUrlRendererTest extends StrutsTestCase {
 
 		String action = actionUrl
 				.getParameter(PortletActionConstants.ACTION_PARAM);
-		assertEquals("/view/current_namespace/testAction", action);
+		assertEquals("/current_namespace/testAction", action);
+	}
+	
+	public void testShouldUseCurrentNamespaceIfNoneSpecified() {
+		Form form = new Form(stack, new PortletServletRequest(request, null),
+				new PortletServletResponse(response));
+
+		MockActionInvocation ai = new MockActionInvocation();
+		MockActionProxy ap = new MockActionProxy();
+		ap.setActionName("testAction");
+		ap.setNamespace("/current_namespace");
+		ai.setProxy(ap);
+		ai.setStack(stack);
+		ai.setAction(new Object());
+		ctx.setActionInvocation(ai);
+
+		renderer.renderFormUrl(form);
+
+		String action = actionUrl
+				.getParameter(PortletActionConstants.ACTION_PARAM);
+		assertEquals("/current_namespace/testAction", action);
 	}
 	
 	public void testShouldEvaluateActionAsOGNLExpression() throws Exception {
