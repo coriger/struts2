@@ -44,17 +44,15 @@ import com.opensymphony.xwork2.ActionContext;
  * PortletActionContext. ActionContext thread local for the portlet environment.
  *
  * @version $Revision$ $Date$
- * @deprecated Static stuff no good
  */
-@Deprecated
-public class PortletActionContext implements PortletActionConstants {
+public class PortletActionContext implements PortletActionConstants,ContextUtil {
 
     /**
      * Get the PortletConfig of the portlet that is executing.
      *
      * @return The PortletConfig of the executing portlet.
      */
-    public static PortletConfig getPortletConfig() {
+    public PortletConfig getPortletConfig() {
         return (PortletConfig) getContext().get(PORTLET_CONFIG);
     }
 
@@ -64,7 +62,7 @@ public class PortletActionContext implements PortletActionConstants {
      * @return The current RenderRequest.
      * @throws IllegalStateException If the method is invoked in the wrong phase.
      */
-    public static RenderRequest getRenderRequest() {
+    public RenderRequest getRenderRequest() {
         if (!isRender()) {
             throw new IllegalStateException(
                     "RenderRequest cannot be obtained in event phase");
@@ -78,7 +76,7 @@ public class PortletActionContext implements PortletActionConstants {
      * @return The current RenderResponse.
      * @throws IllegalStateException If the method is invoked in the wrong phase.
      */
-    public static RenderResponse getRenderResponse() {
+    public RenderResponse getRenderResponse() {
         if (!isRender()) {
             throw new IllegalStateException(
                     "RenderResponse cannot be obtained in event phase");
@@ -92,7 +90,7 @@ public class PortletActionContext implements PortletActionConstants {
      * @return The current ActionRequest.
      * @throws IllegalStateException If the method is invoked in the wrong phase.
      */
-    public static ActionRequest getActionRequest() {
+    public ActionRequest getActionRequest() {
         if (!isEvent()) {
             throw new IllegalStateException(
                     "ActionRequest cannot be obtained in render phase");
@@ -106,7 +104,7 @@ public class PortletActionContext implements PortletActionConstants {
      * @return The current ActionRequest.
      * @throws IllegalStateException If the method is invoked in the wrong phase.
      */
-    public static ActionResponse getActionResponse() {
+    public ActionResponse getActionResponse() {
         if (!isEvent()) {
             throw new IllegalStateException(
                     "ActionResponse cannot be obtained in render phase");
@@ -120,7 +118,7 @@ public class PortletActionContext implements PortletActionConstants {
      *
      * @return The portlet namespace as defined in <code>portlet.xml</code> and <code>struts.xml</code>
      */
-    public static String getPortletNamespace() {
+    public String getPortletNamespace() {
         return (String)getContext().get(PORTLET_NAMESPACE);
     }
 
@@ -129,7 +127,7 @@ public class PortletActionContext implements PortletActionConstants {
      *
      * @return The current PortletRequest.
      */
-    public static PortletRequest getRequest() {
+    public PortletRequest getRequest() {
         return (PortletRequest) getContext().get(REQUEST);
     }
     
@@ -137,7 +135,7 @@ public class PortletActionContext implements PortletActionConstants {
      * Convenience setter for the portlet request.
      * @param request
      */
-    public static void setRequest(PortletRequest request) {
+    public void setRequest(PortletRequest request) {
     	getContext().put(REQUEST, request);
     }
 
@@ -146,7 +144,7 @@ public class PortletActionContext implements PortletActionConstants {
      *
      * @return The current PortletResponse.
      */
-    public static PortletResponse getResponse() {
+    public PortletResponse getResponse() {
         return (PortletResponse) getContext().get(RESPONSE);
     }
     
@@ -154,7 +152,7 @@ public class PortletActionContext implements PortletActionConstants {
      * Convenience setter for the portlet response.
      * @param response
      */
-    public static void setResponse(PortletResponse response) {
+    public void setResponse(PortletResponse response) {
     	getContext().put(RESPONSE, response);
     }
 
@@ -164,21 +162,21 @@ public class PortletActionContext implements PortletActionConstants {
      * @return {@link PortletActionConstants#RENDER_PHASE} in render phase, and
      * {@link PortletActionConstants#EVENT_PHASE} in the event phase.
      */
-    public static Integer getPhase() {
+    public Integer getPhase() {
         return (Integer) getContext().get(PHASE);
     }
 
     /**
      * @return <code>true</code> if the Portlet is executing in render phase.
      */
-    public static boolean isRender() {
+    public boolean isRender() {
         return PortletActionConstants.RENDER_PHASE.equals(getPhase());
     }
 
     /**
      * @return <code>true</code> if the Portlet is executing in the event phase.
      */
-    public static boolean isEvent() {
+    public boolean isEvent() {
         return PortletActionConstants.EVENT_PHASE.equals(getPhase());
     }
 
@@ -194,7 +192,7 @@ public class PortletActionContext implements PortletActionConstants {
      *
      * @return <code>true</code> if the current request is a portlet request.
      */
-    public static boolean isPortletRequest() {
+    public boolean isPortletRequest() {
         return getRequest() != null;
     }
 
@@ -203,7 +201,7 @@ public class PortletActionContext implements PortletActionConstants {
      *
      * @return The default action mapping for the current portlet mode.
      */
-    public static ActionMapping getDefaultActionForMode() {
+    public ActionMapping getDefaultActionForMode() {
         return (ActionMapping)getContext().get(DEFAULT_ACTION_FOR_MODE);
     }
 
@@ -213,7 +211,7 @@ public class PortletActionContext implements PortletActionConstants {
      * @return The map of the namespaces for each mode.
      */
     @SuppressWarnings("unchecked")
-	public static Map<PortletMode,String> getModeNamespaceMap() {
+	public Map<PortletMode,String> getModeNamespaceMap() {
         return (Map<PortletMode,String>)getContext().get(MODE_NAMESPACE_MAP);
     }
     
@@ -221,7 +219,7 @@ public class PortletActionContext implements PortletActionConstants {
      * Get the portlet context.
      * @return The portlet context.
      */
-    public static PortletContext getPortletContext() {
+    public PortletContext getPortletContext() {
     	return (PortletContext)getContext().get(StrutsStatics.STRUTS_PORTLET_CONTEXT);
     }
     
@@ -229,7 +227,7 @@ public class PortletActionContext implements PortletActionConstants {
      * Convenience setter for the portlet context.
      * @param context
      */
-    public static void setPortletContext(PortletContext context) {
+    public void setPortletContext(PortletContext context) {
     	getContext().put(StrutsStatics.STRUTS_PORTLET_CONTEXT, context);
     }
     
@@ -238,7 +236,7 @@ public class PortletActionContext implements PortletActionConstants {
      *
      * @return The action mapping
      */
-    public static ActionMapping getActionMapping() {
+    public ActionMapping getActionMapping() {
         return (ActionMapping) getContext().get(ACTION_MAPPING);
     }
 

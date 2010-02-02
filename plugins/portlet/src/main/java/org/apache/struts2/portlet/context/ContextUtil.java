@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
+import javax.portlet.PortletContext;
 import javax.portlet.PortletMode;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
@@ -30,5 +31,11 @@ public interface ContextUtil {
 	PortletResponse getResponse();
 	
 	Map<PortletMode,String> getModeNamespaceMap();
+
+	boolean isEvent();
+
+	boolean isRender();
+
+	PortletContext getPortletContext();
 
 }

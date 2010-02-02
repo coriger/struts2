@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.dispatcher.StrutsResultSupport;
 import org.apache.struts2.portlet.PortletActionConstants;
+import org.apache.struts2.portlet.context.ContextUtil;
 import org.apache.struts2.portlet.context.PortletActionContext;
 import org.apache.struts2.views.util.ResourceUtil;
 
@@ -61,6 +62,8 @@ public class PortletFreemarkerResult extends StrutsResultSupport implements Port
 
     protected ObjectWrapper wrapper;
     protected FreemarkerManager freemarkerManager;
+    
+    ContextUtil context = new PortletActionContext();
 
     /*
      * Struts results are constructed for each result execeution
@@ -105,9 +108,9 @@ public class PortletFreemarkerResult extends StrutsResultSupport implements Port
      */
     public void doExecute(String location, ActionInvocation invocation)
             throws IOException, TemplateException, PortletException {
-        if (PortletActionContext.isEvent()) {
+        if (context.isEvent()) {
             executeActionResult(location, invocation);
-        } else if (PortletActionContext.isRender()) {
+        } else if (context.isRender()) {
             executeRenderResult(location, invocation);
         }
     }
@@ -118,11 +121,11 @@ public class PortletFreemarkerResult extends StrutsResultSupport implements Port
      */
     private void executeActionResult(String location,
                                      ActionInvocation invocation) {
-        ActionResponse res = PortletActionContext.getActionResponse();
+        ActionResponse res = context.getActionResponse();
         // View is rendered outside an action...uh oh...
 		invocation.getInvocationContext().getSession().put(RENDER_DIRECT_LOCATION, location);
         res.setRenderParameter(PortletActionConstants.ACTION_PARAM, "freemarkerDirect");
-        res.setRenderParameter(PortletActionConstants.MODE_PARAM, PortletActionContext
+        res.setRenderParameter(PortletActionConstants.MODE_PARAM, context
                 .getRequest().getPortletMode().toString());
 
     }
@@ -155,7 +158,7 @@ public class PortletFreemarkerResult extends StrutsResultSupport implements Port
         if (preTemplateProcess(template, model)) {
             try {
                 // Process the template
-                PortletActionContext.getRenderResponse().setContentType(pContentType);
+            	context.getRenderResponse().setContentType(pContentType);
                 template.process(model, getWriter());
             } finally {
                 // Give subclasses a chance to hook into postprocessing
@@ -192,7 +195,7 @@ public class PortletFreemarkerResult extends StrutsResultSupport implements Port
      * The default writer writes directly to the response writer.
      */
     protected Writer getWriter() throws IOException {
-        return PortletActionContext.getRenderResponse().getWriter();
+        return context.getRenderResponse().getWriter();
     }
 
     /**

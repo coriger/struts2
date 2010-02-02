@@ -36,6 +36,7 @@ import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.StrutsConstants;
 import org.apache.struts2.dispatcher.StrutsResultSupport;
 import org.apache.struts2.portlet.PortletActionConstants;
+import org.apache.struts2.portlet.context.ContextUtil;
 import org.apache.struts2.portlet.context.PortletActionContext;
 import org.apache.struts2.views.JspSupportServlet;
 import org.apache.struts2.views.velocity.VelocityManager;
@@ -96,6 +97,9 @@ public class PortletVelocityResult extends StrutsResultSupport {
     
     private String defaultEncoding;
     private VelocityManager velocityManager;
+    
+    ContextUtil context = new PortletActionContext();
+    
     public PortletVelocityResult() {
         super();
     }
@@ -119,9 +123,9 @@ public class PortletVelocityResult extends StrutsResultSupport {
      */
     public void doExecute(String location, ActionInvocation invocation)
             throws Exception {
-        if (PortletActionContext.isEvent()) {
+        if (context.isEvent()) {
             executeActionResult(location, invocation);
-        } else if (PortletActionContext.isRender()) {
+        } else if (context.isRender()) {
             executeRenderResult(location, invocation);
         }
     }
@@ -134,7 +138,7 @@ public class PortletVelocityResult extends StrutsResultSupport {
      */
     private void executeActionResult(String location,
             ActionInvocation invocation) {
-        ActionResponse res = PortletActionContext.getActionResponse();
+        ActionResponse res = context.getActionResponse();
         // View is rendered outside an action...uh oh...
         String namespace = invocation.getProxy().getNamespace();
         if ( namespace != null && namespace.length() > 0 && !namespace.endsWith("/")) {
@@ -143,7 +147,7 @@ public class PortletVelocityResult extends StrutsResultSupport {
         }
         res.setRenderParameter(PortletActionConstants.ACTION_PARAM, namespace + "freemarkerDirect");
         res.setRenderParameter("location", location);
-        res.setRenderParameter(PortletActionConstants.MODE_PARAM, PortletActionContext
+        res.setRenderParameter(PortletActionConstants.MODE_PARAM, context
                 .getRequest().getPortletMode().toString());
 
     }

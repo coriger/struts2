@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.dispatcher.StrutsResultSupport;
 import org.apache.struts2.portlet.PortletActionConstants;
+import org.apache.struts2.portlet.context.ContextUtil;
 import org.apache.struts2.portlet.context.PortletActionContext;
 import org.apache.commons.lang.xwork.StringUtils;
 
@@ -70,6 +71,8 @@ public class PortletResult extends StrutsResultSupport implements PortletActionC
 	private String title;
 	
 	protected PortletMode portletMode;
+	
+	ContextUtil context = new PortletActionContext();
 
 	public PortletResult() {
 		super();
@@ -88,9 +91,9 @@ public class PortletResult extends StrutsResultSupport implements PortletActionC
 	 */
 	public void doExecute(String finalLocation, ActionInvocation actionInvocation) throws Exception {
 
-		if (PortletActionContext.isRender()) {
+		if (context.isRender()) {
 			executeRenderResult(finalLocation);
-		} else if (PortletActionContext.isEvent()) {
+		} else if (context.isEvent()) {
 			executeActionResult(finalLocation, actionInvocation);
 		} else {
 			executeRegularServletResult(finalLocation, actionInvocation);
@@ -127,7 +130,7 @@ public class PortletResult extends StrutsResultSupport implements PortletActionC
 	 */
 	protected void executeActionResult(String finalLocation, ActionInvocation invocation) throws Exception {
 		LOG.debug("Executing result in Event phase");
-		ActionResponse res = PortletActionContext.getActionResponse();
+		ActionResponse res = context.getActionResponse();
 		Map sessionMap = invocation.getInvocationContext().getSession();
 		LOG.debug("Setting event render parameter: " + finalLocation);
 		if (finalLocation.indexOf('?') != -1) {
@@ -153,7 +156,7 @@ public class PortletResult extends StrutsResultSupport implements PortletActionC
 			res.setRenderParameter(PortletActionConstants.MODE_PARAM, portletMode.toString());
 		}
 		else {
-			res.setRenderParameter(PortletActionConstants.MODE_PARAM, PortletActionContext.getRequest().getPortletMode()
+			res.setRenderParameter(PortletActionConstants.MODE_PARAM, context.getRequest().getPortletMode()
 					.toString());
 		}
 	}
@@ -183,9 +186,9 @@ public class PortletResult extends StrutsResultSupport implements PortletActionC
 	 */
 	protected void executeRenderResult(final String finalLocation) throws PortletException, IOException {
 		LOG.debug("Executing result in Render phase");
-		PortletContext ctx = PortletActionContext.getPortletContext();
-		RenderRequest req = PortletActionContext.getRenderRequest();
-		RenderResponse res = PortletActionContext.getRenderResponse();
+		PortletContext ctx = context.getPortletContext();
+		RenderRequest req = context.getRenderRequest();
+		RenderResponse res = context.getRenderResponse();
 		res.setContentType(contentType);
 		if (StringUtils.isNotEmpty(title)) {
 			res.setTitle(title);

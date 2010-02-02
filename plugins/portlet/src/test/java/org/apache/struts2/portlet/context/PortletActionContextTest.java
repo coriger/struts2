@@ -56,8 +56,10 @@ public class PortletActionContextTest extends MockObjectTestCase {
     ActionResponse actionResponse;
 
     PortletConfig portletConfig;
+    
+    PortletActionContext actionContext = new PortletActionContext();
 
-    Map context = new HashMap();
+    Map<String,Object> context = new HashMap<String,Object>();
 
     public void setUp() throws Exception {
         super.setUp();
@@ -80,36 +82,36 @@ public class PortletActionContextTest extends MockObjectTestCase {
     public void testGetPhase() {
         context.put(PortletActionConstants.PHASE, PortletActionConstants.RENDER_PHASE);
 
-        assertEquals(PortletActionConstants.RENDER_PHASE, PortletActionContext.getPhase());
+        assertEquals(PortletActionConstants.RENDER_PHASE, actionContext.getPhase());
     }
 
     public void testIsRender() {
         context.put(PortletActionConstants.PHASE, PortletActionConstants.RENDER_PHASE);
 
-        assertTrue(PortletActionContext.isRender());
-        assertFalse(PortletActionContext.isEvent());
+        assertTrue(actionContext.isRender());
+        assertFalse(actionContext.isEvent());
     }
 
     public void testIsEvent() {
         context.put(PortletActionConstants.PHASE, PortletActionConstants.EVENT_PHASE);
 
-        assertTrue(PortletActionContext.isEvent());
-        assertFalse(PortletActionContext.isRender());
+        assertTrue(actionContext.isEvent());
+        assertFalse(actionContext.isRender());
     }
 
     public void testGetPortletConfig() {
         context.put(PortletActionConstants.PORTLET_CONFIG, portletConfig);
-        assertSame(portletConfig, PortletActionContext.getPortletConfig());
+        assertSame(portletConfig, actionContext.getPortletConfig());
     }
 
     public void testGetRenderRequestAndResponse() {
         context.put(PortletActionConstants.REQUEST, renderRequest);
         context.put(PortletActionConstants.RESPONSE, renderResponse);
         context.put(PortletActionConstants.PHASE, PortletActionConstants.RENDER_PHASE);
-        assertSame(renderRequest, PortletActionContext.getRenderRequest());
-        assertSame(renderResponse, PortletActionContext.getRenderResponse());
-        assertSame(renderRequest, PortletActionContext.getRequest());
-        assertSame(renderResponse, PortletActionContext.getResponse());
+        assertSame(renderRequest, actionContext.getRenderRequest());
+        assertSame(renderResponse, actionContext.getRenderResponse());
+        assertSame(renderRequest, actionContext.getRequest());
+        assertSame(renderResponse, actionContext.getResponse());
     }
 
     public void testGetRenderRequestAndResponseInEventPhase() {
@@ -117,14 +119,14 @@ public class PortletActionContextTest extends MockObjectTestCase {
         context.put(PortletActionConstants.RESPONSE, renderResponse);
         context.put(PortletActionConstants.PHASE, PortletActionConstants.EVENT_PHASE);
         try {
-            PortletActionContext.getRenderRequest();
+        	actionContext.getRenderRequest();
             fail("Should throw IllegalStateException!");
         }
         catch(IllegalStateException e) {
             assertTrue(true);
         }
         try {
-            PortletActionContext.getRenderResponse();
+        	actionContext.getRenderResponse();
             fail("Should throw IllegalStateException!");
         }
         catch(IllegalStateException e) {
@@ -136,10 +138,10 @@ public class PortletActionContextTest extends MockObjectTestCase {
         context.put(PortletActionConstants.REQUEST, actionRequest);
         context.put(PortletActionConstants.RESPONSE, actionResponse);
         context.put(PortletActionConstants.PHASE, PortletActionConstants.EVENT_PHASE);
-        assertSame(actionRequest, PortletActionContext.getActionRequest());
-        assertSame(actionResponse, PortletActionContext.getActionResponse());
-        assertSame(actionRequest, PortletActionContext.getRequest());
-        assertSame(actionResponse, PortletActionContext.getResponse());
+        assertSame(actionRequest, actionContext.getActionRequest());
+        assertSame(actionResponse, actionContext.getActionResponse());
+        assertSame(actionRequest, actionContext.getRequest());
+        assertSame(actionResponse, actionContext.getResponse());
     }
 
     public void testGetActionRequestAndResponseInRenderPhase() {
@@ -147,14 +149,14 @@ public class PortletActionContextTest extends MockObjectTestCase {
         context.put(PortletActionConstants.RESPONSE, actionResponse);
         context.put(PortletActionConstants.PHASE, PortletActionConstants.RENDER_PHASE);
         try {
-            PortletActionContext.getActionRequest();
+        	actionContext.getActionRequest();
             fail("Should throw IllegalStateException!");
         }
         catch(IllegalStateException e) {
             assertTrue(true);
         }
         try {
-            PortletActionContext.getActionResponse();
+        	actionContext.getActionResponse();
             fail("Should throw IllegalStateException!");
         }
         catch(IllegalStateException e) {
@@ -164,13 +166,13 @@ public class PortletActionContextTest extends MockObjectTestCase {
 
     public void testGetNamespace() {
         context.put(PortletActionConstants.PORTLET_NAMESPACE, "testNamespace");
-        assertEquals("testNamespace", PortletActionContext.getPortletNamespace());
+        assertEquals("testNamespace", actionContext.getPortletNamespace());
     }
 
     public void testGetDefaultActionForMode() {
         ActionMapping mapping = new ActionMapping();
         context.put(PortletActionConstants.DEFAULT_ACTION_FOR_MODE, mapping);
-        assertEquals(mapping, PortletActionContext.getDefaultActionForMode());
+        assertEquals(mapping, actionContext.getDefaultActionForMode());
     }
 
     public void tearDown() throws Exception {

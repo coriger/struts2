@@ -39,7 +39,6 @@ import org.apache.commons.lang.xwork.StringUtils;
 import org.apache.struts2.StrutsException;
 import org.apache.struts2.portlet.PortletActionConstants;
 import org.apache.struts2.portlet.context.ContextUtil;
-import org.apache.struts2.portlet.context.DynamicContext;
 import org.apache.struts2.portlet.context.PortletActionContext;
 
 import com.opensymphony.xwork2.util.logging.Logger;
@@ -55,7 +54,7 @@ import com.opensymphony.xwork2.util.logging.LoggerFactory;
  */
 public class PortletUrlHelper implements UrlHelper {
 	
-	ContextUtil context = new DynamicContext(); 
+	ContextUtil context = new PortletActionContext(); 
 	
     public static final String ENCODING = "UTF-8";
 
@@ -74,7 +73,7 @@ public class PortletUrlHelper implements UrlHelper {
      * @return The URL String.
      */
     
-    public String buildUrl(String action, String namespace, String method, Map params,
+    public String buildUrl(String action, String namespace, String method, Map<String,Object> params,
             String type, String mode, String state) {
         return buildUrl(action, namespace, method, params, null, type, mode, state,
                 true, true);
@@ -86,7 +85,7 @@ public class PortletUrlHelper implements UrlHelper {
      * @see #buildUrl(String, String, Map, String, String, String)
      */
     
-    public String buildUrl(String action, String namespace, String method, Map params,
+    public String buildUrl(String action, String namespace, String method, Map<String,Object> params,
             String scheme, String type, String portletMode, String windowState,
             boolean includeContext, boolean encodeResult) {
     	StringBuffer resultingAction = new StringBuffer();
@@ -241,7 +240,7 @@ public class PortletUrlHelper implements UrlHelper {
      * @return A Map with all parameters as String arrays.
      */
     
-    public Map ensureParamsAreStringArrays(Map<String, Object> params) {
+    public Map<String,String[]> ensureParamsAreStringArrays(Map<String, Object> params) {
         Map<String, String[]> result = null;
         if (params != null) {
             result = new LinkedHashMap<String, String[]>(params.size());

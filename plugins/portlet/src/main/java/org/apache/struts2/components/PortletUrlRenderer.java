@@ -26,6 +26,7 @@ import java.io.Writer;
 
 import org.apache.struts2.dispatcher.mapper.ActionMapper; 
 import org.apache.struts2.StrutsException;
+import org.apache.struts2.portlet.context.ContextUtil;
 import org.apache.struts2.portlet.context.PortletActionContext;
 import org.apache.struts2.portlet.util.PortletUrlHelper;
 import org.apache.struts2.portlet.util.UrlHelper;
@@ -50,6 +51,8 @@ public class PortletUrlRenderer implements UrlRenderer {
 	
 	UrlHelper urlHelper = new PortletUrlHelper();
 	
+	ContextUtil context = new PortletActionContext();
+	
 	public PortletUrlRenderer() {
 		this.servletRenderer = new ServletUrlRenderer();
 	}
@@ -63,7 +66,7 @@ public class PortletUrlRenderer implements UrlRenderer {
 	 * {@inheritDoc}
 	 */
 	public void renderUrl(Writer writer, UrlProvider urlComponent) {
-		if(PortletActionContext.getPortletContext() == null || "none".equalsIgnoreCase(urlComponent.getPortletUrlType())) {
+		if(context.getPortletContext() == null || "none".equalsIgnoreCase(urlComponent.getPortletUrlType())) {
 			servletRenderer.renderUrl(writer, urlComponent);
 		}
 		else {
@@ -132,7 +135,7 @@ public class PortletUrlRenderer implements UrlRenderer {
 	 * {@inheritDoc}
 	 */
 	public void renderFormUrl(Form formComponent) {
-		if(PortletActionContext.getPortletContext() == null) {
+		if(context.getPortletContext() == null) {
 			servletRenderer.renderFormUrl(formComponent);
 		}
 		else {
@@ -177,7 +180,7 @@ public class PortletUrlRenderer implements UrlRenderer {
 	}
 
 	public void beforeRenderUrl(UrlProvider urlComponent) {
-		if(PortletActionContext.getPortletContext() == null) {
+		if(context.getPortletContext() == null) {
 			servletRenderer.beforeRenderUrl(urlComponent);
 		}
 	}

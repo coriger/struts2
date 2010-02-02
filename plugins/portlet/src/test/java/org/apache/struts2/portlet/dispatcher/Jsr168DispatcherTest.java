@@ -21,7 +21,6 @@
 
 package org.apache.struts2.portlet.dispatcher;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,13 +45,10 @@ import org.easymock.EasyMock;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.jmock.core.Constraint;
-import org.springframework.mock.web.portlet.MockActionRequest;
-import org.springframework.mock.web.portlet.MockActionResponse;
 import org.springframework.mock.web.portlet.MockPortletConfig;
 import org.springframework.mock.web.portlet.MockPortletContext;
 
 import com.opensymphony.xwork2.Action;
-import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionInvocation;
 import com.opensymphony.xwork2.ActionProxy;
 import com.opensymphony.xwork2.ActionProxyFactory;
