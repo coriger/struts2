@@ -27,16 +27,15 @@ import java.util.Locale;
 
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
-import javax.portlet.PortletRequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.dispatcher.StrutsResultSupport;
 import org.apache.struts2.portlet.PortletActionConstants;
 import org.apache.struts2.portlet.context.ContextUtil;
 import org.apache.struts2.portlet.context.PortletActionContext;
+import org.apache.struts2.portlet.context.StaticServletActionContext;
 import org.apache.struts2.views.util.ResourceUtil;
 
 import com.opensymphony.xwork2.ActionInvocation;
@@ -56,6 +55,8 @@ public class PortletFreemarkerResult extends StrutsResultSupport implements Port
 
     private static final long serialVersionUID = -5570612389289887543L;
 
+    private org.apache.struts2.portlet.context.ServletActionContextUtil servletActionContext = new StaticServletActionContext();
+    
     protected ActionInvocation invocation;
 
     protected Configuration configuration;
@@ -145,7 +146,7 @@ public class PortletFreemarkerResult extends StrutsResultSupport implements Port
         this.configuration = getConfiguration();
         this.wrapper = getObjectWrapper();
 
-        HttpServletRequest req = ServletActionContext.getRequest();
+        HttpServletRequest req = servletActionContext.getRequest();
 
         if (!location.startsWith("/")) {
             String base = ResourceUtil.getResourceBase(req);
@@ -177,7 +178,7 @@ public class PortletFreemarkerResult extends StrutsResultSupport implements Port
      */
     protected Configuration getConfiguration() throws TemplateException {
         return freemarkerManager.getConfiguration(
-                ServletActionContext.getServletContext());
+                servletActionContext.getServletContext());
     }
 
     /**
@@ -217,11 +218,11 @@ public class PortletFreemarkerResult extends StrutsResultSupport implements Port
      * </ul>
      */
     protected TemplateModel createModel() throws TemplateModelException {
-        ServletContext servletContext = ServletActionContext
+        ServletContext servletContext = servletActionContext
                 .getServletContext();
-        HttpServletRequest request = ServletActionContext.getRequest();
-        HttpServletResponse response = ServletActionContext.getResponse();
-        ValueStack stack = ServletActionContext.getContext()
+        HttpServletRequest request = servletActionContext.getRequest();
+        HttpServletResponse response = servletActionContext.getResponse();
+        ValueStack stack = servletActionContext.getContext()
                 .getValueStack();
         return freemarkerManager.buildTemplateModel(stack,
                 invocation.getAction(), servletContext, request, response,
@@ -261,7 +262,7 @@ public class PortletFreemarkerResult extends StrutsResultSupport implements Port
         Object attrContentType = template.getCustomAttribute("content_type");
 
         if (attrContentType != null) {
-            ServletActionContext.getResponse().setContentType(
+            servletActionContext.getResponse().setContentType(
                     attrContentType.toString());
         } else {
             String contentType = getContentType();
@@ -276,7 +277,7 @@ public class PortletFreemarkerResult extends StrutsResultSupport implements Port
                 contentType = contentType + "; charset=" + encoding;
             }
 
-            ServletActionContext.getResponse().setContentType(contentType);
+            servletActionContext.getResponse().setContentType(contentType);
         }
 
         return true;

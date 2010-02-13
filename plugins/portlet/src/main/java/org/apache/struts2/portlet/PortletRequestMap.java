@@ -129,7 +129,7 @@ public class PortletRequestMap extends AbstractMap<String,Object> {
      * @return the request attribute or <tt>null</tt> if it doesn't exist.
      */
     public Object get(String key) {
-        return request.getAttribute(key.toString());
+        return request.getAttribute(key);
     }
 
     /**
@@ -141,7 +141,7 @@ public class PortletRequestMap extends AbstractMap<String,Object> {
      */
     public Object put(String key, Object value) {
         entries = null;
-        request.setAttribute(key.toString(), value);
+        request.setAttribute(key, value);
 
         return get(key);
     }
@@ -157,6 +157,9 @@ public class PortletRequestMap extends AbstractMap<String,Object> {
         entries = null;
 
         Object value = get(key);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Removing key " + key + " from request");
+        }
         request.removeAttribute(key.toString());
 
         return value;

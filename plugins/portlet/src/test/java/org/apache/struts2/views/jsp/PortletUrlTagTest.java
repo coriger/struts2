@@ -54,7 +54,6 @@ import com.opensymphony.xwork2.util.ValueStack;
 
 /**
  */
-@SuppressWarnings("unchecked")
 public class PortletUrlTagTest extends StrutsTestCase {
 
 	private URLTag tag = new URLTag();
@@ -106,7 +105,7 @@ public class PortletUrlTagTest extends StrutsTestCase {
 			}
 		};
 
-		Map modeMap = new HashMap();
+		Map<PortletMode,String> modeMap = new HashMap<PortletMode,String>();
 		modeMap.put(PortletMode.VIEW, "/view");
 		modeMap.put(PortletMode.HELP, "/help");
 		modeMap.put(PortletMode.EDIT, "/edit");
@@ -237,6 +236,7 @@ public class PortletUrlTagTest extends StrutsTestCase {
 		paramTag2.setParent(tag);
 		paramTag2.setName("testParam2");
 		paramTag2.setValue("'testValue2'");
+		tag.setEscapeAmp("false");
 		tag.setValue("image.gif");
 		tag.doStartTag();
 		paramTag.doStartTag();
@@ -264,6 +264,33 @@ public class PortletUrlTagTest extends StrutsTestCase {
 		tag.doEndTag();
 		jspWriter.verify();
 	}
+	
+	public void testMultipleParametersEscapedAmps() throws Exception {
+        renderRequest.setContextPath("/myPortlet");
+        jspWriter.setExpectedData("/myPortlet/image.gif?id=5&amp;size=1");
+        
+        ParamTag idParamTag = new ParamTag();
+        idParamTag.setPageContext(pageContext);
+        idParamTag.setParent(tag);
+        idParamTag.setName("id");
+        idParamTag.setValue("5");
+        
+        ParamTag sizeParamTag = new ParamTag();
+        sizeParamTag.setPageContext(pageContext);
+        sizeParamTag.setParent(tag);
+        sizeParamTag.setName("size");
+        sizeParamTag.setValue("1");
+        
+        tag.setValue("image.gif");
+        tag.setEscapeAmp("true");
+        tag.doStartTag();
+        idParamTag.doStartTag();
+        idParamTag.doEndTag();
+        sizeParamTag.doStartTag();
+        sizeParamTag.doEndTag();
+        tag.doEndTag();
+        jspWriter.verify();
+    }
 	
 	public void testResourceUrlWithNestedOgnlExpressionParamThatIsNotString() throws Exception {
 		renderRequest.setContextPath("/myPortlet");

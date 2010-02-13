@@ -89,7 +89,8 @@ public class PortletUrlRenderer implements UrlRenderer {
 				result = urlHelper.buildUrl(action, urlComponent.getNamespace(), urlComponent.getMethod(), parameters, urlComponent.getPortletUrlType(),
                         urlComponent.getPortletMode(), urlComponent.getWindowState());
 			} else if(onlyValueSpecified(urlComponent)){
-				result = urlHelper.buildResourceUrl(urlComponent.getValue(), parameters);
+			    ComponentUrlProvider provider = (ComponentUrlProvider)urlComponent;
+				result = urlHelper.buildResourceUrl(urlComponent.getValue(), parameters,provider.isEscapeAmp());
 			}
 			else {
 				result = createDefaultUrl(urlComponent);

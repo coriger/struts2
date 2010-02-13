@@ -222,7 +222,7 @@ public class PortletUrlHelper implements UrlHelper {
 	 * @return encoded url to non Struts action resources.
 	 */
 
-	public String buildResourceUrl(String value, Map<String, Object> params) {
+	public String buildResourceUrl(String value, Map<String, Object> params,boolean escapeAmps) {
 		StringBuffer sb = new StringBuffer();
 		// Relative URLs are not allowed in a portlet
 		if (!value.startsWith("/")) {
@@ -242,7 +242,7 @@ public class PortletUrlHelper implements UrlHelper {
 					sb.append(URLEncoder.encode(entry.getValue().toString(),
 							ENCODING));
 					if (it.hasNext()) {
-						sb.append("&");
+						sb.append((escapeAmps ? "&amp;" : "&"));
 					}
 				}
 			} catch (UnsupportedEncodingException e) {

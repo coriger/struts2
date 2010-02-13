@@ -183,7 +183,7 @@ public class PortletActionContext implements PortletActionConstants,ContextUtil 
     /**
      * @return The current ActionContext.
      */
-    private static ActionContext getContext() {
+    private ActionContext getContext() {
         return ActionContext.getContext();
     }
 

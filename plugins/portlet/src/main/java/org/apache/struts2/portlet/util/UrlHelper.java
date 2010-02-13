@@ -11,7 +11,7 @@ public interface UrlHelper {
 			String scheme, String type, String portletMode, String windowState,
 			boolean includeContext, boolean encodeResult);
 
-	String buildResourceUrl(String value, Map<String, Object> params);
+	String buildResourceUrl(String value, Map<String, Object> params,boolean escapeParams);
 
 	Map<String,String[]> ensureParamsAreStringArrays(Map<String, Object> params);
 
