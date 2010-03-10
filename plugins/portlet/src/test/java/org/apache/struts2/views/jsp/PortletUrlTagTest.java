@@ -135,11 +135,11 @@ public class PortletUrlTagTest extends StrutsTestCase {
 	}
 
 	public void testEnsureParamsAreStringArrays() {
-		Map params = new HashMap();
+		Map<String,Object> params = new HashMap<String,Object>();
 		params.put("param1", "Test1");
 		params.put("param2", new String[] { "Test2" });
 
-		Map result = helper.ensureParamsAreStringArrays(params);
+		Map<String,String[]> result = helper.ensureParamsAreStringArrays(params);
 		assertEquals(2, result.size());
 		assertTrue(result.get("param1") instanceof String[]);
 	}
@@ -297,6 +297,7 @@ public class PortletUrlTagTest extends StrutsTestCase {
 		jspWriter.setExpectedData("/myPortlet/image.gif?id=5");
 		
 		Object o = new Object() {
+			@SuppressWarnings("unused")
 			public Integer getId() {
 				return 5;
 			}
