@@ -166,6 +166,10 @@ public class PortletUrlRenderer implements UrlRenderer {
 				Map<String,Object> parameters = formComponent.getParameters();
 				String result = urlHelper.buildUrl(action, namespace, null,
 						parameters, type, formComponent.portletMode, formComponent.windowState);
+				// Since the form template is escaping for us, we have to undo the escaping a non-buggy portal has done for us.
+		        if (result.indexOf("&amp;") >= 0) {
+		          result = result.replace("&amp;", "&");
+		        }
 				formComponent.addParameter("action", result);
 
 
