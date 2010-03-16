@@ -163,9 +163,9 @@ public class PortletUrlHelper implements UrlHelper {
 		}
 		result = url.toString();
 		// TEMP BUG-WORKAROUND FOR DOUBLE ESCAPING OF AMPERSAND
-		if (result.indexOf("&amp;") >= 0) {
-			result = result.replace("&amp;", "&");
-		}
+		//if (result.indexOf("&amp;") >= 0) {
+		//	result = result.replace("&amp;", "&");
+		//}
 		return result;
 
 	}
