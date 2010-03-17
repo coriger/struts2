@@ -162,10 +162,6 @@ public class PortletUrlHelper implements UrlHelper {
 			LOG.error("Unable to set mode or state:" + e.getMessage(), e);
 		}
 		result = url.toString();
-		// TEMP BUG-WORKAROUND FOR DOUBLE ESCAPING OF AMPERSAND
-		//if (result.indexOf("&amp;") >= 0) {
-		//	result = result.replace("&amp;", "&");
-		//}
 		return result;
 
 	}
