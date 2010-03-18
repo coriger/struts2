@@ -25,8 +25,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
 
-import org.apache.struts2.dispatcher.mapper.ActionMapper; 
+import org.apache.struts2.dispatcher.mapper.ActionMapper;
 import org.apache.struts2.StrutsException;
+import org.apache.struts2.portlet.PortletRequestMap;
 import org.apache.struts2.portlet.context.ContextUtil;
 import org.apache.struts2.portlet.context.PortletActionContext;
 import org.apache.struts2.portlet.util.PortletUrlHelper;
@@ -36,24 +37,29 @@ import org.apache.commons.lang.xwork.StringUtils;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionInvocation;
 import com.opensymphony.xwork2.inject.Inject;
+import com.opensymphony.xwork2.util.logging.Logger;
+import com.opensymphony.xwork2.util.logging.LoggerFactory;
 
 /**
- * Implementation of the {@link UrlRenderer} interface that renders URLs for portlet environments.
+ * Implementation of the {@link UrlRenderer} interface that renders URLs for
+ * portlet environments.
  * 
  * @see UrlRenderer
- *
+ * 
  */
 public class PortletUrlRenderer implements UrlRenderer {
-	
+
+	private static final Logger LOG = LoggerFactory.getLogger(PortletRequestMap.class);
+
 	/**
 	 * The servlet renderer used when not executing in a portlet context.
 	 */
 	private UrlRenderer servletRenderer = null;
-	
+
 	UrlHelper urlHelper = new PortletUrlHelper();
-	
+
 	ContextUtil context = new PortletActionContext();
-	
+
 	public PortletUrlRenderer() {
 		this.servletRenderer = new ServletUrlRenderer();
 	}
@@ -62,40 +68,46 @@ public class PortletUrlRenderer implements UrlRenderer {
 	public void setActionMapper(ActionMapper actionMapper) {
 		servletRenderer.setActionMapper(actionMapper);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public void renderUrl(Writer writer, UrlProvider urlComponent) {
-		if(context.getPortletContext() == null || "none".equalsIgnoreCase(urlComponent.getPortletUrlType())) {
+		if (context.getPortletContext() == null
+				|| "none".equalsIgnoreCase(urlComponent.getPortletUrlType())) {
 			servletRenderer.renderUrl(writer, urlComponent);
-		}
-		else {
+		} else {
 			String action = null;
-			if(urlComponent.getAction() != null) {
+			if (urlComponent.getAction() != null) {
 				action = urlComponent.findString(urlComponent.getAction());
 			}
-			/*String scheme = urlComponent.getHttpServletRequest().getScheme();
-
-			if (urlComponent.getScheme() != null) {
-				scheme = urlComponent.getScheme();
-			} */
+			/*
+			 * String scheme = urlComponent.getHttpServletRequest().getScheme();
+			 * 
+			 * if (urlComponent.getScheme() != null) { scheme =
+			 * urlComponent.getScheme(); }
+			 */
 
 			String result;
-			urlComponent.setNamespace(urlComponent.determineNamespace(urlComponent.getNamespace(), urlComponent.getStack(), urlComponent.getHttpServletRequest()));
+			urlComponent.setNamespace(urlComponent.determineNamespace(
+					urlComponent.getNamespace(), urlComponent.getStack(),
+					urlComponent.getHttpServletRequest()));
 			@SuppressWarnings("unchecked")
-			Map<String,Object> parameters = urlComponent.getParameters();
+			Map<String, Object> parameters = urlComponent.getParameters();
 			if (onlyActionSpecified(urlComponent)) {
-				result = urlHelper.buildUrl(action, urlComponent.getNamespace(), urlComponent.getMethod(), parameters, urlComponent.getPortletUrlType(),
-                        urlComponent.getPortletMode(), urlComponent.getWindowState());
-			} else if(onlyValueSpecified(urlComponent)){
-			    ComponentUrlProvider provider = (ComponentUrlProvider)urlComponent;
-				result = urlHelper.buildResourceUrl(urlComponent.getValue(), parameters,provider.isEscapeAmp());
-			}
-			else {
+				result = urlHelper.buildUrl(action,
+						urlComponent.getNamespace(), urlComponent.getMethod(),
+						parameters, urlComponent.getPortletUrlType(),
+						urlComponent.getPortletMode(), urlComponent
+								.getWindowState());
+			} else if (onlyValueSpecified(urlComponent)) {
+				ComponentUrlProvider provider = (ComponentUrlProvider) urlComponent;
+				result = urlHelper.buildResourceUrl(urlComponent.getValue(),
+						parameters, provider.isEscapeAmp());
+			} else {
 				result = createDefaultUrl(urlComponent);
 			}
-            String anchor = urlComponent.getAnchor();
+			String anchor = urlComponent.getAnchor();
 			if (StringUtils.isNotEmpty(anchor)) {
 				result += '#' + urlComponent.findString(anchor);
 			}
@@ -120,39 +132,44 @@ public class PortletUrlRenderer implements UrlRenderer {
 	private String createDefaultUrl(UrlProvider urlComponent) {
 		String result;
 		@SuppressWarnings("unchecked")
-		Map<String,Object> parameters = urlComponent.getParameters();
-		ActionInvocation ai = (ActionInvocation)urlComponent.getStack().getContext().get(
-				ActionContext.ACTION_INVOCATION);
+		Map<String, Object> parameters = urlComponent.getParameters();
+		ActionInvocation ai = (ActionInvocation) urlComponent.getStack()
+				.getContext().get(ActionContext.ACTION_INVOCATION);
 		String action = ai.getProxy().getActionName();
-		result = urlHelper.buildUrl(action, urlComponent.getNamespace(), urlComponent.getMethod(), parameters,
-                urlComponent.getPortletUrlType(), urlComponent.getPortletMode(), urlComponent.getWindowState());
+		result = urlHelper.buildUrl(action, urlComponent.getNamespace(),
+				urlComponent.getMethod(), parameters, urlComponent
+						.getPortletUrlType(), urlComponent.getPortletMode(),
+				urlComponent.getWindowState());
 		return result;
 	}
 
 	private boolean onlyValueSpecified(UrlProvider urlComponent) {
-		return urlComponent.getValue() != null && urlComponent.getAction() == null;
+		return urlComponent.getValue() != null
+				&& urlComponent.getAction() == null;
 	}
 
 	private boolean onlyActionSpecified(UrlProvider urlComponent) {
-		return urlComponent.getValue() == null && urlComponent.getAction() != null;
+		return urlComponent.getValue() == null
+				&& urlComponent.getAction() != null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void renderFormUrl(Form formComponent) {
-		if(context.getPortletContext() == null) {
+		if (context.getPortletContext() == null) {
 			servletRenderer.renderFormUrl(formComponent);
-		}
-		else {
-			String namespace = formComponent.determineNamespace(formComponent.namespace, formComponent.getStack(),
+		} else {
+			String namespace = formComponent.determineNamespace(
+					formComponent.namespace, formComponent.getStack(),
 					formComponent.request);
 			String action = null;
 			if (formComponent.action != null) {
 				action = formComponent.findString(formComponent.action);
-			}
-			else {
-				ActionInvocation ai = (ActionInvocation) formComponent.getStack().getContext().get(ActionContext.ACTION_INVOCATION);
+			} else {
+				ActionInvocation ai = (ActionInvocation) formComponent
+						.getStack().getContext().get(
+								ActionContext.ACTION_INVOCATION);
 				action = ai.getProxy().getActionName();
 			}
 			String type = "action";
@@ -163,17 +180,23 @@ public class PortletUrlRenderer implements UrlRenderer {
 			}
 			if (action != null) {
 				@SuppressWarnings("unchecked")
-				Map<String,Object> parameters = formComponent.getParameters();
+				Map<String, Object> parameters = formComponent.getParameters();
 				String result = urlHelper.buildUrl(action, namespace, null,
-						parameters, type, formComponent.portletMode, formComponent.windowState);
-				// Since the form template is escaping for us, we have to undo the escaping a non-buggy portal has done for us.
-		        if (result.indexOf("&amp;") >= 0) {
-		          result = result.replace("&amp;", "&");
-		        }
+						parameters, type, formComponent.portletMode,
+						formComponent.windowState);
+				// Since the form template is escaping for us, we have to undo
+				// the escaping a non-buggy portal has done for us.
+				if (result.indexOf("&amp;") >= 0) {
+					String unEscaped = result.replace("&amp;", "&");
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("Unescaped action url {0} to {1}", result,unEscaped);
+					}
+					result = unEscaped;
+				}
 				formComponent.addParameter("action", result);
 
-
-				// name/id: cut out anything between / and . should be the id and
+				// name/id: cut out anything between / and . should be the id
+				// and
 				// name
 				String id = formComponent.getId();
 				if (id == null) {
@@ -188,18 +211,18 @@ public class PortletUrlRenderer implements UrlRenderer {
 				}
 			}
 		}
-		
+
 	}
 
 	public void beforeRenderUrl(UrlProvider urlComponent) {
-		if(context.getPortletContext() == null) {
+		if (context.getPortletContext() == null) {
 			servletRenderer.beforeRenderUrl(urlComponent);
 		}
 	}
 
 	public void setServletRenderer(UrlRenderer nonPortletRenderer) {
 		this.servletRenderer = nonPortletRenderer;
-		
+
 	}
 
 }
