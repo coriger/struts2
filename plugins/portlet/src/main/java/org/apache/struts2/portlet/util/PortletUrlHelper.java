@@ -92,7 +92,7 @@ public class PortletUrlHelper {
         PortletRequest request = PortletActionContext.getRequest();
         LOG.debug("Creating url. Action = " + action + ", Namespace = "
                 + namespace + ", Type = " + type);
-        namespace = prependNamespace(namespace, portletMode, !URLTYPE_NAME_RESOURCE.equalsIgnoreCase(type));
+        namespace = prependNamespace(namespace, portletMode, false);
         if (StringUtils.isEmpty(portletMode)) {
             portletMode = PortletActionContext.getRequest().getPortletMode().toString();
         }

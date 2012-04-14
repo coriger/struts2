@@ -101,6 +101,12 @@ public interface PortletActionConstants {
      * {@link org.apache.struts2.portlet.context.PortletActionContext}.
      */
     String MODE_NAMESPACE_MAP = "struts.portlet.modeNamespaceMap";
+    
+    /**
+     * Key for the mode-to-default-action map stored in the
+     * {@link org.apache.struts2.portlet.context.PortletActionContext}.
+     */
+    String DEFAULT_ACTION_MAP = "struts.portlet.modeActionMap";
 
     /**
      * Key for the default action name for the portlet, stored in the
@@ -117,6 +123,11 @@ public interface PortletActionConstants {
      * Key for session attribute indicating the location of the render direct action.
      */
     String RENDER_DIRECT_LOCATION = "struts.portlet.renderDirectLocation";
+    
+    /**
+     * Namespace use for executing the renderDirect action. Necessary to get the namespaces on s:urls correct.
+     */
+    String RENDER_DIRECT_NAMESPACE = "struts.portlet.renderDirectNamespace";
 
     /**
      * Key for the dispatch instruction for the {@link DispatcherServlet}
