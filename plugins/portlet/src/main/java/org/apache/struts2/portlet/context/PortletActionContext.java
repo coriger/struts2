@@ -23,11 +23,14 @@ package org.apache.struts2.portlet.context;
 import com.opensymphony.xwork2.ActionContext;
 import org.apache.struts2.StrutsStatics;
 import org.apache.struts2.dispatcher.mapper.ActionMapping;
+import org.apache.struts2.portlet.PortletActionConstants;
+import org.apache.struts2.portlet.PortletConstants;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
+import javax.portlet.PortletMode;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.RenderRequest;
@@ -208,8 +211,21 @@ public class PortletActionContext {
      *
      * @return The map of the namespaces for each mode.
      */
-    public static Map getModeNamespaceMap() {
-        return (Map) getContext().get(MODE_NAMESPACE_MAP);
+    public static Map<PortletMode,String> getModeNamespaceMap() {
+        @SuppressWarnings("unchecked")
+		Map<PortletMode,String> result = (Map<PortletMode,String>) getContext().get(MODE_NAMESPACE_MAP);
+        return result;
+    }
+    
+    /**
+     * Get the mode to default action mappings.
+     * 
+     * @return The map of default action mapping for each mode
+     */
+    public static Map<PortletMode,ActionMapping> getModeActionMap() {
+    	@SuppressWarnings("unchecked")
+		Map<PortletMode,ActionMapping> result = (Map<PortletMode,ActionMapping>) getContext().get(PortletActionConstants.DEFAULT_ACTION_MAP);
+    	return result;
     }
 
     /**

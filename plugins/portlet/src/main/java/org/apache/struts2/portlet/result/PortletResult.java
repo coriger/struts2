@@ -137,10 +137,14 @@ public class PortletResult extends StrutsResultSupport implements PortletActionC
 	 * @param invocation
 	 */
 	protected void executeActionResult(String finalLocation, ActionInvocation invocation) throws Exception {
-        String phase = (PortletActionContext.isEvent()) ? "Event" : "Action";
-		if (LOG.isDebugEnabled()) LOG.debug("Executing result in "+phase+" phase");
+        String namespace = invocation.getProxy().getNamespace();
+		if (LOG.isDebugEnabled()) {
+			String phase = (PortletActionContext.isEvent()) ? "Event" : "Action";
+			LOG.debug("Executing result in "+phase+" phase");
+			LOG.debug("Setting event render parameter location : " + finalLocation);
+			LOG.debug("Setting event render parameter namespace: " + namespace);
+		}
 		Map sessionMap = invocation.getInvocationContext().getSession();
-		if (LOG.isDebugEnabled()) LOG.debug("Setting event render parameter: " + finalLocation);
 		if (finalLocation.indexOf('?') != -1) {
 			convertQueryParamsToRenderParams(finalLocation.substring(finalLocation.indexOf('?') + 1));
 			finalLocation = finalLocation.substring(0, finalLocation.indexOf('?'));
@@ -155,6 +159,7 @@ public class PortletResult extends StrutsResultSupport implements PortletActionC
 			resultHelper.setRenderParameter(response, ACTION_PARAM, "renderDirect");
 			sessionMap.put(RENDER_DIRECT_LOCATION, finalLocation);
 		}
+		resultHelper.setRenderParameter(response, RENDER_DIRECT_NAMESPACE, namespace);
 		if(portletMode != null) {
 			resultHelper.setPortletMode(response, portletMode);
 			resultHelper.setRenderParameter(response, PortletActionConstants.MODE_PARAM, portletMode.toString());

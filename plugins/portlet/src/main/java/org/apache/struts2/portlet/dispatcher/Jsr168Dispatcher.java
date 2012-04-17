@@ -43,6 +43,7 @@ import org.apache.struts2.dispatcher.mapper.ActionMapping;
 import org.apache.struts2.dispatcher.multipart.MultiPartRequestWrapper;
 import org.apache.struts2.portlet.PortletActionConstants;
 import org.apache.struts2.portlet.PortletApplicationMap;
+import org.apache.struts2.portlet.PortletConstants;
 import org.apache.struts2.portlet.PortletRequestMap;
 import org.apache.struts2.portlet.PortletSessionMap;
 import org.apache.struts2.portlet.context.PortletActionContext;
@@ -303,7 +304,9 @@ public class Jsr168Dispatcher extends GenericPortlet implements StrutsStatics {
      */
     public void processAction(ActionRequest request, ActionResponse response)
             throws PortletException, IOException {
-        if (LOG.isDebugEnabled()) LOG.debug("Entering processAction");
+        if (LOG.isDebugEnabled()) {
+        	LOG.debug("Entering processAction in mode ",request.getPortletMode().toString());
+        }
         resetActionContext();
         try {
             serviceAction(request, response, getRequestMap(request), getParameterMap(request),
@@ -324,7 +327,9 @@ public class Jsr168Dispatcher extends GenericPortlet implements StrutsStatics {
     public void render(RenderRequest request, RenderResponse response)
             throws PortletException, IOException {
 
-        if (LOG.isDebugEnabled()) LOG.debug("Entering render");
+        if (LOG.isDebugEnabled()) {
+        	LOG.debug("Entering render in mode ",request.getPortletMode().toString());
+        }
         resetActionContext();
         response.setTitle(getTitle(request));
         if(!request.getWindowState().equals(WindowState.MINIMIZED)) {
@@ -401,6 +406,7 @@ public class Jsr168Dispatcher extends GenericPortlet implements StrutsStatics {
         extraContext.put("application", applicationMap);
         extraContext.put("parameters", parameterMap);
         extraContext.put(MODE_NAMESPACE_MAP, modeMap);
+        extraContext.put(PortletActionConstants.DEFAULT_ACTION_MAP, actionMap);
 
         extraContext.put(PHASE, phase);
 
@@ -448,7 +454,11 @@ public class Jsr168Dispatcher extends GenericPortlet implements StrutsStatics {
             container.inject(servletRequest);
             ActionMapping mapping = getActionMapping(request, servletRequest);
             actionName = mapping.getName();
-            namespace = mapping.getNamespace();
+            if ("renderDirect".equals(actionName)) {
+            	namespace = request.getParameter(PortletActionConstants.RENDER_DIRECT_NAMESPACE);
+            } else {
+            	namespace = mapping.getNamespace();
+            }
             HashMap<String, Object> extraContext = createContextMap(requestMap, parameterMap,
                     sessionMap, applicationMap, request, response, servletRequest, servletResponse,
                     servletContext, getPortletConfig(), phase);
