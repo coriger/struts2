@@ -28,6 +28,7 @@ import com.opensymphony.xwork2.util.location.LocatableProperties;
 
 /**
  * Loads the default properties, separate from the usual struts.properties loading
+ * 加载struts的org/apache/struts2/default.properties文件  都是一些参数
  */
 public class DefaultPropertiesProvider extends LegacyPropertiesConfigurationProvider {
 
@@ -37,6 +38,10 @@ public class DefaultPropertiesProvider extends LegacyPropertiesConfigurationProv
     public void init(Configuration configuration) throws ConfigurationException {
     }
 
+    /**
+     * 把default.properties的key value location值放到LocatableProperties中
+     * 比平常的Properties多了个location概念  不止存储key value值  还存储key value所处的行号 列号
+     */
     public void register(ContainerBuilder builder, LocatableProperties props)
             throws ConfigurationException {
         

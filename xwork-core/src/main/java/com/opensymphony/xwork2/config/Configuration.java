@@ -27,7 +27,7 @@ import java.util.Set;
 
 /**
  * XWork configuration.
- *
+ * XWork配置
  * @author Mike
  */
 public interface Configuration extends Serializable {

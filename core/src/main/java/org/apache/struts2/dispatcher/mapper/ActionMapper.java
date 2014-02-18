@@ -27,7 +27,7 @@ import com.opensymphony.xwork2.config.ConfigurationManager;
 
 /**
  * <!-- START SNIPPET: javadoc -->
- *
+ * ActionMapper实现类提供Http请求与Struts Action之间映射方法
  * The ActionMapper interface provides a mapping between HTTP requests and action invocation requests and vice-versa.
  * <p/>
  * When given an HttpServletRequest, the ActionMapper may return null if no action invocation request matches,
@@ -48,7 +48,7 @@ public interface ActionMapper {
 
     /**
      * Expose the ActionMapping for the current request
-     *
+     * 通过request对象来获取映射关系
      * @param request The servlet request
      * @param configManager The current configuration manager
      * @return The appropriate action mapping
@@ -57,7 +57,7 @@ public interface ActionMapper {
 
     /**
      * Expose the ActionMapping for the specified action name
-     *
+     * 通过action名称来获取映射关系
      * @param actionName The name of the action that may have other information embedded in it
      * @return The appropriate action mapping
      * @since 2.1.1
@@ -66,7 +66,7 @@ public interface ActionMapper {
 
     /**
      * Convert an ActionMapping into a URI string
-     *
+     * 通过映射对象来获取uri
      * @param mapping The action mapping
      * @return The URI string that represents this mapping
      */

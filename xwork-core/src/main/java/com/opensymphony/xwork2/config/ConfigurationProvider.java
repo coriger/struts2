@@ -17,6 +17,7 @@ package com.opensymphony.xwork2.config;
 
 /**
  * Interface to be implemented by all forms of XWork configuration classes.
+ * 实现了bean constant package 三种 配置类型文件读取
  */
 public interface ConfigurationProvider extends ContainerProvider, PackageProvider {
 }

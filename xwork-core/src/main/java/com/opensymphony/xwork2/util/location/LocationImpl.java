@@ -142,7 +142,7 @@ public class LocationImpl implements Location, Serializable {
     
     /**
      * Gets a source code snippet with the default padding
-     *
+     * 获取所处行前后padding内的内容
      * @param padding The amount of lines before and after the error to include
      */
     public List<String> getSnippet(int padding) {

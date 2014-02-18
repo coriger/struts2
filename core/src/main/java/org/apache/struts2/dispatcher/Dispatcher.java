@@ -109,6 +109,7 @@ public class Dispatcher {
 
     /**
      * Store ConfigurationManager instance, set on init.
+     * XWork配置管理器  init方法中初始化
      */
     private ConfigurationManager configurationManager;
 
@@ -315,8 +316,10 @@ public class Dispatcher {
     }
 
     private void init_TraditionalXmlConfigurations() {
+    	// 先去filter初始化参数读取config参数 是否有配置
         String configPaths = initParams.get("config");
         if (configPaths == null) {
+        	// 没配置 则默认是struts-default.xml,struts-plugin.xml,struts.xml
             configPaths = DEFAULT_CONFIGURATION_PATHS;
         }
         String[] files = configPaths.split("\\s*[,]\\s*");
@@ -325,6 +328,7 @@ public class Dispatcher {
                 if ("xwork.xml".equals(file)) {
                     configurationManager.addContainerProvider(createXmlConfigurationProvider(file, false));
                 } else {
+                	// 遍历每个文件  添加每个文件的读取提供者实例
                     configurationManager.addContainerProvider(createStrutsXmlConfigurationProvider(file, false, servletContext));
                 }
             } else {
@@ -419,15 +423,19 @@ public class Dispatcher {
     /**
      * Load configurations, including both XML and zero-configuration strategies,
      * and update optional settings, including whether to reload configurations and resource files.
+     * 
      */
     public void init() {
 
     	if (configurationManager == null) {
+    		// 初始化XWrok的配置管理器
     		configurationManager = createConfigurationManager(BeanSelectionProvider.DEFAULT_BEAN_NAME);
     	}
 
         try {
+        	// 注册读取strut.properties配置文件实现类
             init_DefaultProperties(); // [1]
+            // 注册读取struts.xml配置文件实现类
             init_TraditionalXmlConfigurations(); // [2]
             init_LegacyStrutsProperties(); // [3]
             init_CustomConfigurationProviders(); // [5]
@@ -752,6 +760,7 @@ public class Dispatcher {
             }
             request = new MultiPartRequestWrapper(mpr, request, getSaveDir(servletContext));
         } else {
+        	// 正常请求包装成StrutsRequestWrapper对象  实现getAttribute()方法
             request = new StrutsRequestWrapper(request);
         }
 

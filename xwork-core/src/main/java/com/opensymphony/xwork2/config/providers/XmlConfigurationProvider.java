@@ -15,6 +15,29 @@
  */
 package com.opensymphony.xwork2.config.providers;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+
+import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
 import com.opensymphony.xwork2.Action;
 import com.opensymphony.xwork2.FileManager;
 import com.opensymphony.xwork2.ObjectFactory;
@@ -23,37 +46,35 @@ import com.opensymphony.xwork2.config.Configuration;
 import com.opensymphony.xwork2.config.ConfigurationException;
 import com.opensymphony.xwork2.config.ConfigurationProvider;
 import com.opensymphony.xwork2.config.ConfigurationUtil;
-import com.opensymphony.xwork2.config.entities.*;
+import com.opensymphony.xwork2.config.entities.ActionConfig;
+import com.opensymphony.xwork2.config.entities.ExceptionMappingConfig;
+import com.opensymphony.xwork2.config.entities.InterceptorConfig;
+import com.opensymphony.xwork2.config.entities.InterceptorMapping;
+import com.opensymphony.xwork2.config.entities.InterceptorStackConfig;
+import com.opensymphony.xwork2.config.entities.PackageConfig;
+import com.opensymphony.xwork2.config.entities.ResultConfig;
+import com.opensymphony.xwork2.config.entities.ResultTypeConfig;
 import com.opensymphony.xwork2.config.entities.UnknownHandlerConfig;
 import com.opensymphony.xwork2.config.impl.LocatableFactory;
 import com.opensymphony.xwork2.inject.Container;
 import com.opensymphony.xwork2.inject.ContainerBuilder;
 import com.opensymphony.xwork2.inject.Inject;
 import com.opensymphony.xwork2.inject.Scope;
-import com.opensymphony.xwork2.util.*;
+import com.opensymphony.xwork2.util.ClassLoaderUtil;
+import com.opensymphony.xwork2.util.ClassPathFinder;
+import com.opensymphony.xwork2.util.DomHelper;
+import com.opensymphony.xwork2.util.TextParseUtil;
 import com.opensymphony.xwork2.util.location.LocatableProperties;
 import com.opensymphony.xwork2.util.location.Location;
 import com.opensymphony.xwork2.util.location.LocationUtils;
 import com.opensymphony.xwork2.util.logging.Logger;
 import com.opensymphony.xwork2.util.logging.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.util.*;
 
 
 /**
  * Looks in the classpath for an XML file, "xwork.xml" by default,
  * and uses it for the XWork configuration.
- *
+ * 读取xml配置文件
  * @author tmjee
  * @author Rainer Hermanns
  * @author Neo
@@ -127,6 +148,7 @@ public class XmlConfigurationProvider implements ConfigurationProvider {
     public void init(Configuration configuration) {
         this.configuration = configuration;
         this.includedFileNames = configuration.getLoadedFileNames();
+        // 读取xml配置文件初始化  把configFileName对应的xml文件解析成一个或多个Document对象(include)
         loadDocuments(configFileName);
     }
 
@@ -173,6 +195,7 @@ public class XmlConfigurationProvider implements ConfigurationProvider {
             LOG.info("Parsing configuration file [" + configFileName + "]");
         }
         Map<String, Node> loadedBeans = new HashMap<String, Node>();
+        // 遍历文档
         for (Document doc : documents) {
             Element rootElement = doc.getDocumentElement();
             NodeList children = rootElement.getChildNodes();
@@ -186,6 +209,7 @@ public class XmlConfigurationProvider implements ConfigurationProvider {
 
                     final String nodeName = child.getNodeName();
 
+                    // bean类型
                     if ("bean".equals(nodeName)) {
                         String type = child.getAttribute("type");
                         String name = child.getAttribute("name");
@@ -193,6 +217,7 @@ public class XmlConfigurationProvider implements ConfigurationProvider {
                         String onlyStatic = child.getAttribute("static");
                         String scopeStr = child.getAttribute("scope");
                         boolean optional = "true".equals(child.getAttribute("optional"));
+                        // 默认单例
                         Scope scope = Scope.SINGLETON;
                         if ("default".equals(scopeStr)) {
                             scope = Scope.DEFAULT;
@@ -206,6 +231,7 @@ public class XmlConfigurationProvider implements ConfigurationProvider {
                             scope = Scope.THREAD;
                         }
 
+                        // name默认default
                         if (StringUtils.isEmpty(name)) {
                             name = Container.DEFAULT_NAME;
                         }
@@ -218,6 +244,7 @@ public class XmlConfigurationProvider implements ConfigurationProvider {
                             }
                             if ("true".equals(onlyStatic)) {
                                 // Force loading of class to detect no class def found exceptions
+                            	// 静态类注入
                                 cimpl.getDeclaredClasses();
                                 containerBuilder.injectStatics(cimpl);
                             } else {
@@ -235,8 +262,13 @@ public class XmlConfigurationProvider implements ConfigurationProvider {
                                 if (LOG.isDebugEnabled()) {
                                     LOG.debug("Loaded type:" + type + " name:" + name + " impl:" + impl);
                                 }
+                                
+                                // LocatableFactory是带位置的bean工厂  向容器中注册以name ctype为key 工厂为value
+                                // 这是注册bean
                                 containerBuilder.factory(ctype, name, new LocatableFactory(name, ctype, cimpl, scope, childNode), scope);
                             }
+                            
+                            // 类名+name为key value为node
                             loadedBeans.put(ctype.getName() + name, child);
                         } catch (Throwable ex) {
                             if (!optional) {
@@ -245,9 +277,10 @@ public class XmlConfigurationProvider implements ConfigurationProvider {
                                 LOG.debug("Unable to load optional class: " + ex);
                             }
                         }
-                    } else if ("constant".equals(nodeName)) {
+                    } else if ("constant".equals(nodeName)) {	// constant类型
                         String name = child.getAttribute("name");
                         String value = child.getAttribute("value");
+                        // 直接放入props中
                         props.setProperty(name, value, childNode);
                     } else if (nodeName.equals("unknown-handler-stack")) {
                         List<UnknownHandlerConfig> unknownHandlerStack = new ArrayList<UnknownHandlerConfig>();
@@ -269,6 +302,7 @@ public class XmlConfigurationProvider implements ConfigurationProvider {
 
     public void loadPackages() throws ConfigurationException {
         List<Element> reloads = new ArrayList<Element>();
+        // 遍历文档
         for (Document doc : documents) {
             Element rootElement = doc.getDocumentElement();
             NodeList children = rootElement.getChildNodes();
@@ -282,6 +316,7 @@ public class XmlConfigurationProvider implements ConfigurationProvider {
 
                     final String nodeName = child.getNodeName();
 
+                    // 解析package节点
                     if ("package".equals(nodeName)) {
                         PackageConfig cfg = addPackage(child);
                         if (cfg.isNeedsRefresh()) {

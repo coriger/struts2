@@ -106,8 +106,11 @@ public class LegacyPropertiesConfigurationProvider implements ConfigurationProvi
      */
     protected void loadSettings(LocatableProperties props, final Settings settings) {
         // We are calling the impl methods to get around the single instance of Settings that is expected
+    	// 把settings里的key value location值赋到props里
         for (Iterator i = settings.listImpl(); i.hasNext(); ) {
+        	// 遍历Properties每行key
             String name = (String) i.next();
+            // key	value	Location
             props.setProperty(name, settings.getImpl(name), settings.getLocationImpl(name));
         }
     }

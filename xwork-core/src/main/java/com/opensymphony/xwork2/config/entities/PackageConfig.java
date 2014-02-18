@@ -30,6 +30,7 @@ import java.util.Map;
 
 /**
  * Configuration for Package.
+ * package节点配置，实现Lcated抽象类，表示可定位。
  * <p/>
  * In the xml configuration file this is defined as the <code>package</code> tag.
  *

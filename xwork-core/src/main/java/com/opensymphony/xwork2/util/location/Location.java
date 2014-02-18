@@ -19,6 +19,7 @@ import java.util.List;
 
 
 /**
+ * 在资源文件中的位置  一般是由资源的url和在资源中的行号列号以及描述组成的
  * A location in a resource. The location is composed of the URI of the resource, and 
  * the line and column numbers within that resource (when available), along with a description.
  * <p>
@@ -33,28 +34,28 @@ public interface Location {
     
     /**
      * Get the description of this location
-     * 
+     * 描述
      * @return the description (can be <code>null</code>)
      */
     String getDescription();
     
     /**
      * Get the URI of this location
-     * 
+     * 资源url
      * @return the URI (<code>null</code> if unknown).
      */
     String getURI();
 
     /**
      * Get the line number of this location
-     * 
+     * 所处行号
      * @return the line number (<code>-1</code> if unknown)
      */
     int getLineNumber();
     
     /**
      * Get the column number of this location
-     * 
+     * 所处列号
      * @return the column number (<code>-1</code> if unknown)
      */
     int getColumnNumber();

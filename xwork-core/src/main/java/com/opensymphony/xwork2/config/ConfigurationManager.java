@@ -32,7 +32,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * ConfigurationManager - central for XWork Configuration management, including
  * its ConfigurationProvider.
- *
+ * XWork的配置管理器  管理XWork配置对象(Confiuration)和配置提供者对象(ConfigurationProvider)
  * @author Jason Carreira
  * @author tm_jee
  * @version $Date$ $Id$
@@ -40,10 +40,19 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ConfigurationManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConfigurationManager.class);
+    
+    // XWork配置对象实例
     protected Configuration configuration;
     protected Lock providerLock = new ReentrantLock();
+    
+    // Struts2两种形式对象 所以有两个不同类别的provider
+    
+    // ContainerProvider 容器内置对象 主要是Struts2中的bean和constant
     private List<ContainerProvider> containerProviders = new CopyOnWriteArrayList<ContainerProvider>();
+    // PackageProvider 事件对象 package标签
     private List<PackageProvider> packageProviders = new CopyOnWriteArrayList<PackageProvider>();
+    
+    // 默认Bean名称为struts
     protected String defaultFrameworkBeanName;
 
     public ConfigurationManager() {

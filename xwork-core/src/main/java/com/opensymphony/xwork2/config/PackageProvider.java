@@ -18,7 +18,7 @@ package com.opensymphony.xwork2.config;
 /**
  * Provides configuration packages.  The separate init and loadPackages calls are due to the need to 
  * preserve backwards compatibility with the 2.0 {@link ConfigurationProvider} interface
- * 
+ * package配置提供接口
  * @since 2.1
  */
 public interface PackageProvider {

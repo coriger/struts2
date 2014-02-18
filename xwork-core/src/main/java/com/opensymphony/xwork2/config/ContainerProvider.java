@@ -21,7 +21,7 @@ import com.opensymphony.xwork2.util.location.LocatableProperties;
 
 /**
  * Provides beans and constants/properties for the Container
- * 
+ * bean constant配置文件接口
  * @since 2.1
  */
 public interface ContainerProvider {
@@ -47,7 +47,7 @@ public interface ContainerProvider {
     
     /**
      * Registers beans and properties for the Container
-     * 
+     * 向容器中注册bean和constant对象
      * @param builder The builder to register beans with
      * @param props The properties to register constants with
      * @throws ConfigurationException If anything goes wrong

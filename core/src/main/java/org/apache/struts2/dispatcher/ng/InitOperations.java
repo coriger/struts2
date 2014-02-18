@@ -107,6 +107,8 @@ public class InitOperations {
             String value = filterConfig.getInitParameter(name);
             params.put(name, value);
         }
+        
+        // Web上下文环境 和 Filter初始化的参数 构造Dispatcher
         return new Dispatcher(filterConfig.getServletContext(), params);
     }
 

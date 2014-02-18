@@ -42,12 +42,13 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
+ * 业务逻辑执行前的预处理操作
  * Contains preparation operations for a request before execution
  */
 public class PrepareOperations {
 
     private static final Logger LOG = LoggerFactory.getLogger(PrepareOperations.class);
-
+    
     private ServletContext servletContext;
     private Dispatcher dispatcher;
     private static final String STRUTS_ACTION_MAPPING_KEY = "struts.actionMapping";
@@ -121,6 +122,7 @@ public class PrepareOperations {
     }
 
     /**
+     * 设置请求编码和响应语言环境  由Dispatcher实现
      * Sets the request encoding and locale on the response
      */
     public void setEncodingAndLocale(HttpServletRequest request, HttpServletResponse response) {
@@ -128,6 +130,7 @@ public class PrepareOperations {
     }
 
     /**
+     * 包装request对象 可以更好的处理文件上传请求  web容器解耦合的第一步
      * Wraps the request with the Struts wrapper that handles multipart requests better
      * @return The new request, if there is one
      * @throws ServletException
@@ -137,7 +140,8 @@ public class PrepareOperations {
         try {
             // Wrap request first, just in case it is multipart/form-data
             // parameters might not be accessible through before encoding (ww-1278)
-            request = dispatcher.wrapRequest(request, servletContext);
+            // 为了防止在编码之前文件上传请求参数可能无法获取 首先需要先包装一下request请求对象
+        	request = dispatcher.wrapRequest(request, servletContext);
         } catch (IOException e) {
             String message = "Could not wrap servlet request with MultipartRequestWrapper!";
             throw new ServletException(message, e);
@@ -162,9 +166,11 @@ public class PrepareOperations {
      * in the request or not 
      */
     public ActionMapping findActionMapping(HttpServletRequest request, HttpServletResponse response, boolean forceLookup) {
-        ActionMapping mapping = (ActionMapping) request.getAttribute(STRUTS_ACTION_MAPPING_KEY);
+        // 在request上下文环境中查询是否存在映射关系对象
+    	ActionMapping mapping = (ActionMapping) request.getAttribute(STRUTS_ACTION_MAPPING_KEY);
         if (mapping == null || forceLookup) {
             try {
+            	// 映射关系由ActionMapper的实现类来实现http request对象和Action之间的映射关系转换
                 mapping = dispatcher.getContainer().getInstance(ActionMapper.class).getMapping(request, dispatcher.getConfigurationManager());
                 if (mapping != null) {
                     request.setAttribute(STRUTS_ACTION_MAPPING_KEY, mapping);

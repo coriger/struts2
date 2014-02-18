@@ -99,6 +99,8 @@ public class StrutsXmlConfigurationProvider extends XmlConfigurationProvider {
                 }
             });
         }
+        
+        // 调用父类的初始化方法
         super.register(containerBuilder, props);
     }
 

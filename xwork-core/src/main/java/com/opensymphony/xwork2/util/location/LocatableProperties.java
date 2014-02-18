@@ -15,10 +15,15 @@ import java.util.Properties;
  * Properties implementation that remembers the location of each property.  When
  * loaded, a custom properties file parser is used to remember both the line number
  * and preceeding comments for each property entry.
+ * 
+ * 实现Locatable接口 表示该资源内容可定位
+ * 
  */
 public class LocatableProperties extends Properties implements Locatable {
 
+	// 配置文件资源位置
     Location location;
+    // 配置文件里面各个内容位置  properties文件的key为key值  Location即是这条配置项所处的位置
     Map<String,Location> propLocations;
     
     public LocatableProperties() {
@@ -36,9 +41,13 @@ public class LocatableProperties extends Properties implements Locatable {
         Reader reader = new InputStreamReader(in);
         PropertiesReader pr = new PropertiesReader(reader);
         while (pr.nextProperty()) {
+        	// key值
             String name = pr.getPropertyName();
+            // value值
             String val = pr.getPropertyValue();
+            // 所处行号
             int line = pr.getLineNumber();
+            // 注释
             String desc = convertCommentsToString(pr.getCommentLines());
             
             Location loc = new LocationImpl(desc, location.getURI(), line, 0);
