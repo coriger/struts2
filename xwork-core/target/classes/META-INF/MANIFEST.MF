@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Built-By: smile
+Build-Jdk: 1.6.0_13
+Specification-Title: XWork: Core
+Specification-Version: 2.3.4-SNAPSHOT
+Specification-Vendor: Apache Software Foundation
+Implementation-Title: XWork: Core
+Implementation-Version: 2.3.4-SNAPSHOT
+Implementation-Vendor-Id: org.apache.struts.xwork
+Implementation-Vendor: Apache Software Foundation
+Created-By: Maven Integration for Eclipse
+

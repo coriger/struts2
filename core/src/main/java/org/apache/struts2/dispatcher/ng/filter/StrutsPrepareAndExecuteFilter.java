@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
  * when you don't have another filter that needs access to action context information, such as Sitemesh.
  */
 public class StrutsPrepareAndExecuteFilter implements StrutsStatics, Filter {
+	
     protected PrepareOperations prepare;
     protected ExecuteOperations execute;
 	protected List<Pattern> excludedPatterns = null;

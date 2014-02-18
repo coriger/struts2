@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="struts2">
+        <wb-resource deploy-path="/" source-path="/"/>
+        <wb-resource deploy-path="/" source-path="/"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/xwork-core"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/core"/>
+        <property name="context-root" value="/struts2"/>
+        <property name="java-output-path" value="/struts2/WEB-INF/classes"/>
+    </wb-module>
+</project-modules>
